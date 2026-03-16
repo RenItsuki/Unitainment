@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Add Media</h1>
+
+<form method="POST" class="form-box">
+
+{% csrf_token %}
+
+<input type="text" name="title" placeholder="Title">
+
+<select name="media_type">
+
+<option value="movie">Movie</option>
+<option value="anime">Anime</option>
+<option value="game">Game</option>
+<option value="webseries">Webseries</option>
+
+</select>
+
+<input type="number" step="0.1" name="rating" placeholder="Rating">
+
+<input type="text" name="status" placeholder="Status">
+
+<button type="submit">Add Media</button>
+
+</form>
+
+{% endblock %}
