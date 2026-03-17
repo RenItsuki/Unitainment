@@ -15,15 +15,27 @@ class Media(models.Model):
     episode_count=models.IntegerField(null=True,blank=True)
     minutes_per_episode=models.IntegerField(null=True,blank=True)
     status=models.CharField(max_length=20)
+    updates = models.DateTimeField(auto_now=True)
+    created= models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering= ['-updates', '-created']
+
+    def __str__(self):
+        return self.name
 
 class PersonalList(models.Model):
     STATUS=[('planned','Plan'),('watching','Watching'),('completed','Completed'),('dropped','Dropped')]
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     media=models.ForeignKey(Media,on_delete=models.CASCADE)
     status=models.CharField(max_length=20,choices=STATUS)
+    updates = models.DateTimeField(auto_now=True)
+    created= models.DateTimeField(auto_now_add=True)
 
 class Discussion(models.Model):
     topic=models.CharField(max_length=200)
     description=models.TextField()
     upvotes=models.IntegerField(default=0)
     downvotes=models.IntegerField(default=0)
+    updates = models.DateTimeField(auto_now=True)
+    created= models.DateTimeField(auto_now_add=True)

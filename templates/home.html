@@ -18,7 +18,8 @@
 
 <p>Status: {{ m.status }}</p>
 
-<a href="/delete/{{m.id}}/" class="delete-btn">Delete</a>
+<a href="{% url 'update-media' m.id %}">Edit</a>
+<a href="{% url 'delete-media' m.id %}">Delete</a>
 
 </div>
 
