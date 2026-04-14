@@ -26,8 +26,8 @@ class UnitainmentFlowTests(TestCase):
         response = self.client.get(reverse("home"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Track what is worth your time")
-        self.assertContains(response, "Recent discussions")
+        self.assertContains(response, "Find something worth watching, playing, or reading.")
+        self.assertContains(response, "Recent Discussions")
 
     def test_list_requires_login(self):
         response = self.client.get(reverse("list-home"))
