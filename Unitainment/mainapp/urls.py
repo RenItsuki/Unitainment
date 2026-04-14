@@ -1,13 +1,18 @@
-
-from django.contrib import admin
 from django.urls import path
-from mainapp import views
+
+from . import views
+
 
 urlpatterns = [
-path('admin/', admin.site.urls),
-path('', views.home, name="home"),
-path('search/', views.search, name="search"),
-path('add/', views.addMedia, name="add_media"),
-    path('update-media/<str:pk>', views.updateMedia, name='update-media'),
-    path('delete-media/<str:pk>', views.delete_media, name='delete-media')
+    path("", views.home, name="home"),
+    path("discussions/", views.discussions, name="discussions"),
+    path("search/", views.search, name="search"),
+    path("list/", views.list_home, name="list-home"),
+    path("list/add/", views.save_to_list, name="save-to-list"),
+    path("list/remove/<int:entry_id>/", views.remove_from_list, name="remove-from-list"),
+    path("list/<str:status>/", views.list_status, name="list-status"),
+    path("login/", views.login_view, name="login"),
+    path("register/", views.register_view, name="register"),
+    path("logout/", views.logout_view, name="logout"),
+    path("add/", views.addMedia, name="add_media"),
 ]

@@ -1,33 +1,178 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<section class="page-hero panel">
+    <span class="eyebrow">Search the catalog</span>
+    <h1>Find anime, games, books, and web series fast.</h1>
+    <p>Use the search bar, then tighten the results with type and genre buttons. Recent searches stay visible here as your top five trail.</p>
 
-<h1>Search Media</h1>
+    <form method="get" class="search-form">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search titles, genres, or a vibe">
+        {% if selected_type %}
+            <input type="hidden" name="media_type" value="{{ selected_type }}">
+        {% endif %}
+        {% if selected_genre %}
+            <input type="hidden" name="genre" value="{{ selected_genre }}">
+        {% endif %}
+        <button type="submit">Search</button>
+    </form>
+</section>
 
-<form method="GET" class="search-box">
+<section class="search-layout">
+    <aside class="panel sidebar-panel">
+        <div class="section-header">
+            <div>
+                <span class="eyebrow">Top 5</span>
+                <h2>Recent searches</h2>
+            </div>
+        </div>
 
-<input type="text" name="q" placeholder="Search movies, anime, games...">
+        <div class="sidebar-list">
+            {% for item in recent_searches %}
+                <a class="sidebar-link" href="{% url 'search' %}?{% if item.query %}q={{ item.query|urlencode }}{% endif %}{% if item.media_type %}{% if item.query %}&{% endif %}media_type={{ item.media_type|urlencode }}{% endif %}{% if item.genre %}{% if item.query or item.media_type %}&{% endif %}genre={{ item.genre|urlencode }}{% endif %}">
+                    <strong>
+                        {% if item.query %}
+                            {{ item.query }}
+                        {% elif item.media_type %}
+                            {{ item.media_type|title }}
+                        {% else %}
+                            {{ item.genre }}
+                        {% endif %}
+                    </strong>
+                    <span>
+                        {% if item.media_type %}{{ item.media_type|title }}{% else %}Any type{% endif %}
+                        {% if item.genre %} • {{ item.genre }}{% endif %}
+                    </span>
+                </a>
+            {% empty %}
+                <div class="empty-state compact-empty">
+                    <h3>No searches yet</h3>
+                    <p>Your last five searches will land here.</p>
+                </div>
+            {% endfor %}
+        </div>
 
-<button type="submit">Search</button>
+        <div class="section-header sidebar-gap">
+            <div>
+                <span class="eyebrow">Seasonal heat</span>
+                <h2>Hot right now</h2>
+            </div>
+        </div>
 
-</form>
+        <div class="sidebar-list">
+            {% for section in hot_sections %}
+                <a class="sidebar-link" href="{% url 'search' %}?media_type={{ section.slug }}">
+                    <strong>{{ section.label }}</strong>
+                    <span>{{ section.items|length }} picks ready</span>
+                </a>
+            {% endfor %}
+        </div>
+    </aside>
 
-<div class="media-grid">
+    <div class="search-main">
+        <section class="panel">
+            <div class="section-header">
+                <div>
+                    <span class="eyebrow">Filter buttons</span>
+                    <h2>Search by type</h2>
+                </div>
+            </div>
 
-{% for r in results %}
+            <div class="chip-row">
+                <a class="filter-chip {% if not selected_type %}active{% endif %}" href="{% url 'search' %}?{% if query %}q={{ query|urlencode }}{% endif %}{% if selected_genre %}{% if query %}&{% endif %}genre={{ selected_genre|urlencode }}{% endif %}">All</a>
+                {% for value, label in type_choices %}
+                    <a class="filter-chip {% if selected_type == value %}active{% endif %}" href="{% url 'search' %}?{% if query %}q={{ query|urlencode }}&{% endif %}media_type={{ value|urlencode }}{% if selected_genre %}&genre={{ selected_genre|urlencode }}{% endif %}">{{ label }}</a>
+                {% endfor %}
+            </div>
 
-<div class="card">
+            <div class="section-header section-header-tight">
+                <div>
+                    <span class="eyebrow">Genre buttons</span>
+                    <h2>Search by genre</h2>
+                </div>
+            </div>
 
-<h3>{{ r.title }}</h3>
+            <div class="chip-row">
+                <a class="filter-chip {% if not selected_genre %}active{% endif %}" href="{% url 'search' %}?{% if query %}q={{ query|urlencode }}{% endif %}{% if selected_type %}{% if query %}&{% endif %}media_type={{ selected_type|urlencode }}{% endif %}">All genres</a>
+                {% for item in genres %}
+                    <a class="filter-chip {% if selected_genre == item %}active{% endif %}" href="{% url 'search' %}?{% if query %}q={{ query|urlencode }}&{% endif %}{% if selected_type %}media_type={{ selected_type|urlencode }}&{% endif %}genre={{ item|urlencode }}">{{ item }}</a>
+                {% endfor %}
+            </div>
+        </section>
 
-<p>{{ r.media_type }}</p>
+        {% if query_active %}
+            <section class="panel">
+                <div class="section-header">
+                    <div>
+                        <span class="eyebrow">Results</span>
+                        <h2>{{ results|length }} match{{ results|length|pluralize }}</h2>
+                    </div>
+                </div>
 
-<p>Rating: {{ r.rating }}</p>
+                <div class="card-grid">
+                    {% for media in results %}
+                        <article class="media-card">
+                            <img src="{{ media.poster_url }}" alt="{{ media.title }}">
+                            <div class="media-card-body">
+                                <div class="meta-row">
+                                    <span class="chip">{{ media.get_media_type_display }}</span>
+                                    <span>{{ media.genre }}</span>
+                                </div>
+                                <h3>{{ media.title }}</h3>
+                                <p>{{ media.tagline|default:media.description|truncatechars:110 }}</p>
+                                <div class="meta-row">
+                                    <span>{{ media.status }}</span>
+                                    <span>{{ media.rating }}/10</span>
+                                </div>
+                                {% if request.user.is_authenticated %}
+                                    <form method="post" action="{% url 'save-to-list' %}" class="inline-form">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="media_id" value="{{ media.id }}">
+                                        <input type="hidden" name="status" value="planning">
+                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                        <button class="inline-button" type="submit">Add to Plan To</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </article>
+                    {% empty %}
+                        <div class="empty-state full-width">
+                            <h3>No direct matches</h3>
+                            <p>Try a different genre chip, remove a filter, or browse one of the hot sections below.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
 
-</div>
+        <section class="panel">
+            <div class="section-header">
+                <div>
+                    <span class="eyebrow">Discovery shelves</span>
+                    <h2>Hot games, anime, books, and web series in season</h2>
+                </div>
+            </div>
 
-{% endfor %}
-
-</div>
-
+            {% for section in hot_sections %}
+                <div class="shelf-block">
+                    <div class="meta-row shelf-head">
+                        <h3>{{ section.label }}</h3>
+                        <a class="ghost-link small-link" href="{% url 'search' %}?media_type={{ section.slug }}">See all</a>
+                    </div>
+                    <div class="card-grid card-grid-tight">
+                        {% for media in section.items %}
+                            <article class="media-card media-card-compact">
+                                <img src="{{ media.poster_url }}" alt="{{ media.title }}">
+                                <div class="media-card-body">
+                                    <h3>{{ media.title }}</h3>
+                                    <p>{{ media.genre }} • {{ media.status }}</p>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </section>
+    </div>
+</section>
 {% endblock %}
