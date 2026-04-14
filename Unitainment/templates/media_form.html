@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Media</h1>
+
+<form method="POST" class="form-box">
+
+{% csrf_token %}
+
+{{form.as_p}}
+
+<button type="submit">Add Media</button>
+
+</form>
+
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Media Library</h1>
+
+<div class="media-grid">
+
+{% for m in media %}
+
+<div class="card">
+
+<h3>{{ m.title }}</h3>
+
+<p>Type: {{ m.media_type }}</p>
+
+<p>Rating: {{ m.rating }}</p>
+
+<p>Status: {{ m.status }}</p>
+
+<a href="{% url 'update-media' m.id %}">Edit</a>
+<a href="{% url 'delete-media' m.id %}">Delete</a>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}
