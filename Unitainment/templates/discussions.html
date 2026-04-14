@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="page-hero panel">
+    <span class="eyebrow">Discussion board</span>
+    <h1>Recent discussions, cleaned up and Reddit-inspired.</h1>
+    <p>Big scores, clear communities, comment counts, and topic cards that are easy to skim without turning the page into a wall of noise.</p>
+</section>
+
+{% if featured_discussion %}
+    <section class="feature-discussion panel">
+        <img src="{{ featured_discussion.banner_url }}" alt="{{ featured_discussion.topic }}">
+        <div class="feature-discussion-copy">
+            <div class="meta-row">
+                <span class="chip">Featured thread</span>
+                <span>{{ featured_discussion.community }}</span>
+            </div>
+            <h2>{{ featured_discussion.topic }}</h2>
+            <p>{{ featured_discussion.description }}</p>
+            <div class="meta-row">
+                <span>{{ featured_discussion.score }} score</span>
+                <span>{{ featured_discussion.comment_count }} comments</span>
+                <span>posted by {{ featured_discussion.author_name }}</span>
+            </div>
+        </div>
+    </section>
+{% endif %}
+
+<section class="panel">
+    <div class="section-header">
+        <div>
+            <span class="eyebrow">Recent threads</span>
+            <h2>Community timeline</h2>
+        </div>
+    </div>
+
+    <div class="discussion-timeline">
+        {% for discussion in timeline %}
+            <article class="discussion-row">
+                <div class="vote-column">
+                    <strong>{{ discussion.score }}</strong>
+                    <span>score</span>
+                </div>
+                <div class="discussion-content">
+                    <div class="meta-row">
+                        <span>{{ discussion.community }}</span>
+                        <span>{{ discussion.get_topic_type_display }}</span>
+                        <span>{{ discussion.created|timesince }} ago</span>
+                    </div>
+                    <h3>{{ discussion.topic }}</h3>
+                    <p>{{ discussion.description }}</p>
+                    <div class="meta-row">
+                        <span>u/{{ discussion.author_name }}</span>
+                        <span>{{ discussion.comment_count }} comments</span>
+                    </div>
+                </div>
+                <img src="{{ discussion.banner_url }}" alt="{{ discussion.topic }}">
+            </article>
+        {% empty %}
+            <div class="empty-state">
+                <h3>No discussions yet</h3>
+                <p>The seeded thread list will appear here after migrations run.</p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

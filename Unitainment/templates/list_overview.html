@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="page-hero panel">
+    <span class="eyebrow">Your list</span>
+    <h1>Organize everything into four clean buckets.</h1>
+    <p>`List` only appears after login, and this is the hub for your Plan To, Current, Completed, and Dropped pages.</p>
+</section>
+
+<section class="bucket-grid">
+    {% for section in sections %}
+        <a class="bucket-card panel" href="{% url 'list-status' section.status %}">
+            <span class="bucket-count">{{ section.count }}</span>
+            <h2>{{ section.label }}</h2>
+            <p>{{ section.description }}</p>
+            <span class="inline-button button-static">Open {{ section.label }}</span>
+        </a>
+    {% endfor %}
+</section>
+
+<section class="split-layout">
+    <div class="panel">
+        <div class="section-header">
+            <div>
+                <span class="eyebrow">Recently touched</span>
+                <h2>Latest moves in your list</h2>
+            </div>
+        </div>
+
+        {% if recent_entries %}
+            <div class="mini-grid">
+                {% for entry in recent_entries %}
+                    <article class="mini-card">
+                        <img src="{{ entry.media.poster_url }}" alt="{{ entry.media.title }}">
+                        <div>
+                            <span class="chip">{{ entry.get_status_display }}</span>
+                            <h3>{{ entry.media.title }}</h3>
+                            <p>{{ entry.media.get_media_type_display }} • {{ entry.media.genre }}</p>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h3>Your list is empty</h3>
+                <p>Open a bucket below and start adding titles from the built-in catalog.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="panel">
+        <div class="section-header">
+            <div>
+                <span class="eyebrow">Quick add</span>
+                <h2>Start with these hot picks</h2>
+            </div>
+        </div>
+
+        <div class="card-grid card-grid-tight">
+            {% for media in suggestions %}
+                <article class="media-card media-card-compact">
+                    <img src="{{ media.poster_url }}" alt="{{ media.title }}">
+                    <div class="media-card-body">
+                        <h3>{{ media.title }}</h3>
+                        <p>{{ media.get_media_type_display }} • {{ media.genre }}</p>
+                        <form method="post" action="{% url 'save-to-list' %}" class="inline-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="media_id" value="{{ media.id }}">
+                            <input type="hidden" name="status" value="planning">
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <button class="inline-button" type="submit">Add to Plan To</button>
+                        </form>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
