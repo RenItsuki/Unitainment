@@ -1,180 +1,54 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<section class="hero-grid">
-    <div class="hero-copy panel">
-        <span class="eyebrow">Media dashboard + community corner</span>
-        <h1>Track what is worth your time and keep the conversation moving.</h1>
-        <p>
-            Browse hot anime, games, books, and web series, then jump into discussions that feel a little more like a clean
-            Reddit front page and a little less like chaos.
-        </p>
+<section class="two-column">
+    <div class="panel section-block">
+        <h1>Find something worth watching, playing, or reading.</h1>
+        <p class="section-text">Search anime, games, books, and web series, then save them to your list after login.</p>
 
-        <div class="hero-actions">
-            <a class="solid-link" href="{% url 'search' %}">Explore the catalog</a>
-            <a class="ghost-link" href="{% url 'discussions' %}">See discussions</a>
+        <div class="simple-actions">
+            <a class="primary-link" href="{% url 'search' %}">Open Search</a>
             {% if request.user.is_authenticated %}
-                <a class="ghost-link" href="{% url 'list-home' %}">Open your list</a>
+                <a class="secondary-link" href="{% url 'list-home' %}">Open List</a>
             {% else %}
-                <a class="ghost-link" href="{% url 'register' %}">Create an account</a>
+                <a class="secondary-link" href="{% url 'register' %}">Login / Register</a>
             {% endif %}
         </div>
 
-        <div class="stat-row">
-            <div class="stat-card">
-                <strong>{{ fresh_picks|length }}</strong>
-                <span>Hot picks</span>
-            </div>
-            <div class="stat-card">
-                <strong>{{ recent_discussions|length }}</strong>
-                <span>Recent discussions</span>
-            </div>
-            <div class="stat-card">
-                <strong>{% if request.user.is_authenticated %}4{% else %}Login{% endif %}</strong>
-                <span>{% if request.user.is_authenticated %}List buckets{% else %}Unlock your list{% endif %}</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="hero-stack">
-        {% for media in featured_media %}
-            <article class="feature-card panel">
-                <img src="{{ media.poster_url }}" alt="{{ media.title }}">
-                <div class="feature-copy">
-                    <span class="chip">{{ media.get_media_type_display }}</span>
-                    <h3>{{ media.title }}</h3>
-                    <p>{{ media.tagline|default:media.description|truncatechars:110 }}</p>
-                    <div class="meta-row">
-                        <span>{{ media.genre }}</span>
-                        <span>{{ media.rating }}/10</span>
-                    </div>
-                </div>
-            </article>
-        {% empty %}
-            <article class="panel empty-state">
-                <h3>Catalog is warming up</h3>
-                <p>Seed data will show here after migrations run.</p>
-            </article>
-        {% endfor %}
-    </div>
-</section>
-
-<section class="split-layout">
-    <div class="panel">
-        <div class="section-header">
-            <div>
-                <span class="eyebrow">This season</span>
-                <h2>Fresh picks across the board</h2>
-            </div>
-            <a class="ghost-link" href="{% url 'search' %}">Open search</a>
-        </div>
-
-        <div class="card-grid card-grid-tight">
-            {% for media in fresh_picks %}
-                <article class="media-card">
+        <div class="home-feature-grid">
+            {% for media in featured_media %}
+                <article class="home-feature-card">
                     <img src="{{ media.poster_url }}" alt="{{ media.title }}">
-                    <div class="media-card-body">
-                        <div class="meta-row">
-                            <span class="chip">{{ media.get_media_type_display }}</span>
-                            <span>{{ media.season_label|default:media.status }}</span>
-                        </div>
+                    <div class="home-feature-overlay">
+                        <span class="meta-tag">{{ media.get_media_type_display }}</span>
                         <h3>{{ media.title }}</h3>
-                        <p>{{ media.description|truncatechars:110 }}</p>
-                        <div class="meta-row">
-                            <span>{{ media.genre }}</span>
-                            <span>{{ media.rating }}/10</span>
-                        </div>
-                        {% if request.user.is_authenticated %}
-                            <form method="post" action="{% url 'save-to-list' %}" class="inline-form">
-                                {% csrf_token %}
-                                <input type="hidden" name="media_id" value="{{ media.id }}">
-                                <input type="hidden" name="status" value="planning">
-                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                                <button class="inline-button" type="submit">Add to Plan To</button>
-                            </form>
-                        {% endif %}
+                        <p>{{ media.genre }}</p>
                     </div>
                 </article>
             {% endfor %}
         </div>
     </div>
 
-    <aside class="panel">
-        <div class="section-header">
-            <div>
-                <span class="eyebrow">Community radar</span>
-                <h2>Recent discussions</h2>
-            </div>
-            <a class="ghost-link" href="{% url 'discussions' %}">Full page</a>
+    <div class="panel section-block">
+        <div class="section-head">
+            <h2>Recent Discussions</h2>
+            <a class="secondary-link" href="{% url 'discussions' %}">View all</a>
         </div>
 
         <div class="discussion-list">
             {% for discussion in recent_discussions %}
-                <article class="discussion-item">
-                    <div class="score-badge">{{ discussion.score }}</div>
-                    <div>
-                        <div class="meta-row">
-                            <span>{{ discussion.community }}</span>
-                            <span>{{ discussion.comment_count }} comments</span>
-                        </div>
+                <article class="discussion-item discussion-item-image">
+                    <img src="{{ discussion.banner_url }}" alt="{{ discussion.topic }}">
+                    <div class="discussion-main">
                         <h3>{{ discussion.topic }}</h3>
-                        <p>{{ discussion.description|truncatechars:95 }}</p>
+                        <p>{{ discussion.description|truncatechars:120 }}</p>
+                        <span class="meta-text">{{ discussion.community }} • {{ discussion.comment_count }} comments</span>
                     </div>
                 </article>
             {% empty %}
-                <div class="empty-state">
-                    <h3>No discussions yet</h3>
-                    <p>The seeded conversation threads will show up here after migrations run.</p>
-                </div>
+                <p class="empty-note">No discussions yet.</p>
             {% endfor %}
         </div>
-    </aside>
+    </div>
 </section>
-
-{% if request.user.is_authenticated %}
-    <section class="panel">
-        <div class="section-header">
-            <div>
-                <span class="eyebrow">Your space</span>
-                <h2>Your list at a glance</h2>
-            </div>
-            <a class="ghost-link" href="{% url 'list-home' %}">Manage list</a>
-        </div>
-
-        <div class="bucket-grid">
-            {% for section in list_sections %}
-                <a class="bucket-card" href="{% url 'list-status' section.status %}">
-                    <span class="bucket-count">{{ section.count }}</span>
-                    <h3>{{ section.label }}</h3>
-                    <p>{{ section.caption }}</p>
-                </a>
-            {% endfor %}
-        </div>
-
-        {% if recent_entries %}
-            <div class="mini-grid">
-                {% for entry in recent_entries %}
-                    <article class="mini-card">
-                        <img src="{{ entry.media.poster_url }}" alt="{{ entry.media.title }}">
-                        <div>
-                            <span class="chip">{{ entry.get_status_display }}</span>
-                            <h3>{{ entry.media.title }}</h3>
-                            <p>{{ entry.media.get_media_type_display }} • {{ entry.media.genre }}</p>
-                        </div>
-                    </article>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </section>
-{% else %}
-    <section class="panel cta-panel">
-        <span class="eyebrow">Unlock list mode</span>
-        <h2>Your `List` only appears after login or register.</h2>
-        <p>Create an account to organize titles into Plan To, Current, Completed, and Dropped buckets.</p>
-        <div class="hero-actions">
-            <a class="solid-link" href="{% url 'register' %}">Register</a>
-            <a class="ghost-link" href="{% url 'login' %}">Login</a>
-        </div>
-    </section>
-{% endif %}
 {% endblock %}

@@ -8,56 +8,50 @@
     <title>Unitainment</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <div class="ambient ambient-one"></div>
-    <div class="ambient ambient-two"></div>
-    <div class="page-shell">
-        <nav class="navbar">
-            <a class="logo" href="{% url 'home' %}">
-                <span class="logo-mark">U</span>
-                <span>Unitainment</span>
-            </a>
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a class="logo" href="{% url 'home' %}">Unitainment</a>
 
             <div class="nav-links">
-                <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">Home</a>
-                <a href="{% url 'discussions' %}" class="{% if '/discussions/' in request.path %}active{% endif %}">Discussions</a>
-                <a href="{% url 'search' %}" class="{% if '/search/' in request.path %}active{% endif %}">Search</a>
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'discussions' %}">Discussions</a>
+                <a href="{% url 'search' %}">Search</a>
                 {% if request.user.is_authenticated %}
-                    <a href="{% url 'list-home' %}" class="{% if '/list/' in request.path %}active{% endif %}">List</a>
+                    <a href="{% url 'list-home' %}">List</a>
                 {% endif %}
             </div>
 
             <div class="auth-links">
                 {% if request.user.is_authenticated %}
                     <span class="user-pill">{{ request.user.username }}</span>
-                    <a class="ghost-link" href="{% url 'logout' %}">Logout</a>
+                    <a href="{% url 'logout' %}">Logout</a>
                 {% else %}
-                    <a class="ghost-link" href="{% url 'login' %}">Login</a>
-                    <a class="solid-link" href="{% url 'register' %}">Register</a>
+                    <a href="{% url 'login' %}">Login</a>
+                    <a class="primary-link" href="{% url 'register' %}">Register</a>
                 {% endif %}
             </div>
-        </nav>
+        </div>
+    </nav>
 
-        {% if messages %}
-            <div class="message-stack">
-                {% for message in messages %}
-                    <div class="message {{ message.tags|default:'info' }}">{{ message }}</div>
-                {% endfor %}
-            </div>
-        {% endif %}
+    {% if messages %}
+        <div class="message-stack">
+            {% for message in messages %}
+                <div class="message">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
-        <main class="container">
-            {% block content %}{% endblock %}
-        </main>
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
 
-        <footer class="site-footer">
-            <p>Unitainment © 2026</p>
-            <p>Curated picks, clean tracking, no external API chaos.</p>
-        </footer>
-    </div>
+    <footer class="site-footer">
+        <p>Unitainment © 2026</p>
+    </footer>
 
     <script src="{% static 'js/script.js' %}"></script>
 </body>

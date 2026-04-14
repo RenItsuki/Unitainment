@@ -1,56 +1,33 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<section class="auth-layout">
-    <div class="panel auth-copy">
-        <span class="eyebrow">Account access</span>
-        <h1>{{ title }}</h1>
-        <p>{{ subtitle }}</p>
+<section class="panel section-block">
+    <h1>{{ title }}</h1>
+    <p class="section-text">{{ subtitle }}</p>
 
-        <div class="feature-list">
-            <div class="feature-list-item">
-                <strong>Four list buckets</strong>
-                <span>Plan To, Current, Completed, and Dropped are all ready.</span>
+    <form method="post" class="form-box">
+        {% csrf_token %}
+        {% if request.GET.next %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+        {% endif %}
+
+        {% for field in form %}
+            <div class="form-field">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}
+                    <p class="form-error">{{ error }}</p>
+                {% endfor %}
             </div>
-            <div class="feature-list-item">
-                <strong>Recent searches</strong>
-                <span>Your last five searches stay on the search page for quick jumps.</span>
-            </div>
-            <div class="feature-list-item">
-                <strong>Curated catalog</strong>
-                <span>No API dependency, just clean seeded titles and discussion threads.</span>
-            </div>
-        </div>
-    </div>
+        {% endfor %}
 
-    <div class="panel auth-panel">
-        <form method="post" class="form-box">
-            {% csrf_token %}
-            {% if request.GET.next %}
-                <input type="hidden" name="next" value="{{ request.GET.next }}">
-            {% endif %}
+        {% for error in form.non_field_errors %}
+            <p class="form-error">{{ error }}</p>
+        {% endfor %}
 
-            {% for field in form %}
-                <div class="form-field">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.help_text %}
-                        <small>{{ field.help_text|safe }}</small>
-                    {% endif %}
-                    {% for error in field.errors %}
-                        <p class="form-error">{{ error }}</p>
-                    {% endfor %}
-                </div>
-            {% endfor %}
+        <button type="submit" class="primary-link">{{ submit_label }}</button>
+    </form>
 
-            {% for error in form.non_field_errors %}
-                <p class="form-error">{{ error }}</p>
-            {% endfor %}
-
-            <button type="submit" class="solid-button">{{ submit_label }}</button>
-        </form>
-
-        <a class="auth-switch" href="{{ alt_url }}">{{ alt_text }}</a>
-    </div>
+    <a class="auth-switch" href="{{ alt_url }}">{{ alt_text }}</a>
 </section>
 {% endblock %}
