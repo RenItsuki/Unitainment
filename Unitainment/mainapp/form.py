@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.forms import ModelForm
 
-from .models import Media
+from .models import Discussion, DiscussionComment, Media
 
 
 def _style_fields(form):
@@ -67,3 +67,43 @@ class LoginForm(AuthenticationForm):
 
 
 RoomForm = MediaForm
+
+
+class DiscussionCommentForm(forms.ModelForm):
+    class Meta:
+        model = DiscussionComment
+        fields = ["author_name", "body"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _style_fields(self)
+        self.fields["author_name"].widget.attrs["placeholder"] = "Your name"
+        self.fields["body"].widget.attrs["placeholder"] = "Write a comment"
+        self.fields["body"].widget = forms.Textarea(
+            attrs={
+                "class": "form-input",
+                "placeholder": "Write a comment",
+                "rows": 4,
+            }
+        )
+
+
+class DiscussionForm(forms.ModelForm):
+    class Meta:
+        model = Discussion
+        fields = ["topic", "description", "community", "topic_type", "image_url"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _style_fields(self)
+        self.fields["topic"].widget.attrs["placeholder"] = "Discussion title"
+        self.fields["description"].widget = forms.Textarea(
+            attrs={
+                "class": "form-input",
+                "placeholder": "What do you want to discuss?",
+                "rows": 5,
+            }
+        )
+        self.fields["community"].widget.attrs["placeholder"] = "r/unitainment"
+        self.fields["image_url"].widget.attrs["placeholder"] = "Optional image URL"
+    

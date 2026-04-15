@@ -2,29 +2,35 @@
 
 {% block content %}
 <section class="panel section-block">
-    <h1>Discussions</h1>
+    <div class="section-head">
+        <h1>Discussions</h1>
+        <a class="primary-link" href="{% url 'add-discussion' %}">Add Discussion</a>
+    </div>
+
     <div class="discussion-list">
         {% if featured_discussion %}
-            <article class="discussion-item discussion-item-large">
-                <img src="{{ featured_discussion.banner_url }}" alt="{{ featured_discussion.topic }}">
-                <div class="discussion-main">
-                    <h2>{{ featured_discussion.topic }}</h2>
-                    <p>{{ featured_discussion.description }}</p>
-                    <span class="meta-text">{{ featured_discussion.community }} • {{ featured_discussion.comment_count }} comments</span>
-                </div>
-            </article>
+        <a class="discussion-item discussion-item-large discussion-link"
+            href="{% url 'discussion-detail' featured_discussion.id %}">
+            <img src="{{ featured_discussion.banner_url }}" alt="{{ featured_discussion.topic }}">
+            <div class="discussion-main">
+                <h2>{{ featured_discussion.topic }}</h2>
+                <p>{{ featured_discussion.description }}</p>
+                <span class="meta-text">{{ featured_discussion.community }} • {{ featured_discussion.comment_count }}
+                    comments</span>
+            </div>
+        </a>
         {% endif %}
 
         {% for discussion in timeline %}
-            <article class="discussion-item">
-                <div class="discussion-main">
-                    <h3>{{ discussion.topic }}</h3>
-                    <p>{{ discussion.description|truncatechars:150 }}</p>
-                    <span class="meta-text">{{ discussion.community }} • {{ discussion.comment_count }} comments</span>
-                </div>
-            </article>
+        <a class="discussion-item discussion-link" href="{% url 'discussion-detail' discussion.id %}">
+            <div class="discussion-main">
+                <h3>{{ discussion.topic }}</h3>
+                <p>{{ discussion.description|truncatechars:150 }}</p>
+                <span class="meta-text">{{ discussion.community }} • {{ discussion.comment_count }} comments</span>
+            </div>
+        </a>
         {% empty %}
-            <p class="empty-note">No discussions yet.</p>
+        <p class="empty-note">No discussions yet.</p>
         {% endfor %}
     </div>
 </section>

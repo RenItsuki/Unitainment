@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Media, PersonalList, SearchHistory
+from .models import Discussion, DiscussionComment, Media, PersonalList, SearchHistory
 
 
 class UnitainmentFlowTests(TestCase):
@@ -20,6 +20,12 @@ class UnitainmentFlowTests(TestCase):
             description="Something worth tracking.",
             rating=8.8,
             status="Hot",
+        )
+        self.discussion = Discussion.objects.create(
+            topic="Test Discussion",
+            description="A local thread for testing.",
+            community="r/testing",
+            author_name="tester",
         )
 
     def test_home_page_renders_new_sections(self):
@@ -61,4 +67,22 @@ class UnitainmentFlowTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(
             SearchHistory.objects.filter(user=self.user, query="Test", media_type="anime").exists()
+        )
+
+    def test_discussion_detail_renders(self):
+        response = self.client.get(reverse("discussion-detail", args=[self.discussion.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Test Discussion")
+
+    def test_comment_can_be_posted_to_discussion(self):
+        response = self.client.post(
+            reverse("discussion-detail", args=[self.discussion.id]),
+            {"author_name": "jas", "body": "Nice thread"},
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(
+            DiscussionComment.objects.filter(discussion=self.discussion, author_name="jas", body="Nice thread").exists()
         )

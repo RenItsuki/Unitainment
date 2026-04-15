@@ -7,11 +7,11 @@
 
     <div class="bucket-grid">
         {% for section in sections %}
-            <a class="bucket-card" href="{% url 'list-status' section.status %}">
-                <h2>{{ section.label }}</h2>
-                <p>{{ section.description }}</p>
-                <span class="meta-text">{{ section.count }} item{{ section.count|pluralize }}</span>
-            </a>
+        <a class="bucket-card" href="{% url 'list-status' section.status %}">
+            <h2>{{ section.label }}</h2>
+            <p>{{ section.description }}</p>
+            <span class="meta-text">{{ section.count }} item{{ section.count|pluralize }}</span>
+        </a>
         {% endfor %}
     </div>
 </section>

@@ -9,22 +9,22 @@
         <div class="simple-actions">
             <a class="primary-link" href="{% url 'search' %}">Open Search</a>
             {% if request.user.is_authenticated %}
-                <a class="secondary-link" href="{% url 'list-home' %}">Open List</a>
+            <a class="secondary-link" href="{% url 'list-home' %}">Open List</a>
             {% else %}
-                <a class="secondary-link" href="{% url 'register' %}">Login / Register</a>
+            <a class="secondary-link" href="{% url 'register' %}">Login / Register</a>
             {% endif %}
         </div>
 
         <div class="home-feature-grid">
             {% for media in featured_media %}
-                <article class="home-feature-card">
-                    <img src="{{ media.poster_url }}" alt="{{ media.title }}">
-                    <div class="home-feature-overlay">
-                        <span class="meta-tag">{{ media.get_media_type_display }}</span>
-                        <h3>{{ media.title }}</h3>
-                        <p>{{ media.genre }}</p>
-                    </div>
-                </article>
+            <article class="home-feature-card">
+                <img src="{{ media.poster_url }}" alt="{{ media.title }}">
+                <div class="home-feature-overlay">
+                    <span class="meta-tag">{{ media.get_media_type_display }}</span>
+                    <h3>{{ media.title }}</h3>
+                    <p>{{ media.genre }}</p>
+                </div>
+            </article>
             {% endfor %}
         </div>
     </div>
@@ -37,16 +37,16 @@
 
         <div class="discussion-list">
             {% for discussion in recent_discussions %}
-                <article class="discussion-item discussion-item-image">
-                    <img src="{{ discussion.banner_url }}" alt="{{ discussion.topic }}">
-                    <div class="discussion-main">
-                        <h3>{{ discussion.topic }}</h3>
-                        <p>{{ discussion.description|truncatechars:120 }}</p>
-                        <span class="meta-text">{{ discussion.community }} • {{ discussion.comment_count }} comments</span>
-                    </div>
-                </article>
+            <article class="discussion-item discussion-item-image">
+                <img src="{{ discussion.banner_url }}" alt="{{ discussion.topic }}">
+                <div class="discussion-main">
+                    <h3>{{ discussion.topic }}</h3>
+                    <p>{{ discussion.description|truncatechars:120 }}</p>
+                    <span class="meta-text">{{ discussion.community }} • {{ discussion.comment_count }} comments</span>
+                </div>
+            </article>
             {% empty %}
-                <p class="empty-note">No discussions yet.</p>
+            <p class="empty-note">No discussions yet.</p>
             {% endfor %}
         </div>
     </div>

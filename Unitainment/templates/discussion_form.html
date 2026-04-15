@@ -3,14 +3,9 @@
 {% block content %}
 <section class="panel section-block">
     <h1>{{ title }}</h1>
-    <p class="section-text">{{ subtitle }}</p>
 
     <form method="post" class="form-box">
         {% csrf_token %}
-        {% if request.GET.next %}
-        <input type="hidden" name="next" value="{{ request.GET.next }}">
-        {% endif %}
-
         {% for field in form %}
         <div class="form-field">
             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
@@ -27,7 +22,5 @@
 
         <button type="submit" class="primary-link">{{ submit_label }}</button>
     </form>
-
-    <a class="auth-switch" href="{{ alt_url }}">{{ alt_text }}</a>
 </section>
 {% endblock %}

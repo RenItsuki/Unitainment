@@ -5,9 +5,10 @@
     <h1>{{ status_info.label }}</h1>
     <div class="chip-row">
         {% for section in sections %}
-            <a class="filter-chip {% if section.status == status_info.status %}active{% endif %}" href="{% url 'list-status' section.status %}">
-                {{ section.label }}
-            </a>
+        <a class="filter-chip {% if section.status == status_info.status %}active{% endif %}"
+            href="{% url 'list-status' section.status %}">
+            {{ section.label }}
+        </a>
         {% endfor %}
     </div>
 </section>
@@ -16,33 +17,34 @@
     <h2>Your Items</h2>
     <div class="media-grid">
         {% for entry in entries %}
-            <article class="media-card">
-                <img src="{{ entry.media.poster_url }}" alt="{{ entry.media.title }}">
-                <div class="media-card-body">
-                    <h3>{{ entry.media.title }}</h3>
-                    <p>{{ entry.media.get_media_type_display }} • {{ entry.media.genre }}</p>
-                    <div class="action-row">
-                        {% for section in sections %}
-                            {% if section.status != status_info.status %}
-                                <form method="post" action="{% url 'save-to-list' %}" class="inline-form compact-form">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="media_id" value="{{ entry.media.id }}">
-                                    <input type="hidden" name="status" value="{{ section.status }}">
-                                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                                    <button class="small-button" type="submit">{{ section.label }}</button>
-                                </form>
-                            {% endif %}
-                        {% endfor %}
-                        <form method="post" action="{% url 'remove-from-list' entry.id %}" class="inline-form remove-form compact-form">
-                            {% csrf_token %}
-                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                            <button class="small-button danger-button" type="submit">Remove</button>
-                        </form>
-                    </div>
+        <article class="media-card">
+            <img src="{{ entry.media.poster_url }}" alt="{{ entry.media.title }}">
+            <div class="media-card-body">
+                <h3>{{ entry.media.title }}</h3>
+                <p>{{ entry.media.get_media_type_display }} • {{ entry.media.genre }}</p>
+                <div class="action-row">
+                    {% for section in sections %}
+                    {% if section.status != status_info.status %}
+                    <form method="post" action="{% url 'save-to-list' %}" class="inline-form compact-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="media_id" value="{{ entry.media.id }}">
+                        <input type="hidden" name="status" value="{{ section.status }}">
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button class="small-button" type="submit">{{ section.label }}</button>
+                    </form>
+                    {% endif %}
+                    {% endfor %}
+                    <form method="post" action="{% url 'remove-from-list' entry.id %}"
+                        class="inline-form remove-form compact-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button class="small-button danger-button" type="submit">Remove</button>
+                    </form>
                 </div>
-            </article>
+            </div>
+        </article>
         {% empty %}
-            <p class="empty-note">No items in this page yet.</p>
+        <p class="empty-note">No items in this page yet.</p>
         {% endfor %}
     </div>
 </section>
@@ -51,20 +53,20 @@
     <h2>Add Items</h2>
     <div class="media-grid compact-grid">
         {% for media in suggestions %}
-            <article class="media-card">
-                <img src="{{ media.poster_url }}" alt="{{ media.title }}">
-                <div class="media-card-body">
-                    <h3>{{ media.title }}</h3>
-                    <p>{{ media.get_media_type_display }} • {{ media.genre }}</p>
-                    <form method="post" action="{% url 'save-to-list' %}" class="inline-form">
-                        {% csrf_token %}
-                        <input type="hidden" name="media_id" value="{{ media.id }}">
-                        <input type="hidden" name="status" value="{{ status_info.status }}">
-                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                        <button class="small-button" type="submit">Add</button>
-                    </form>
-                </div>
-            </article>
+        <article class="media-card">
+            <img src="{{ media.poster_url }}" alt="{{ media.title }}">
+            <div class="media-card-body">
+                <h3>{{ media.title }}</h3>
+                <p>{{ media.get_media_type_display }} • {{ media.genre }}</p>
+                <form method="post" action="{% url 'save-to-list' %}" class="inline-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="media_id" value="{{ media.id }}">
+                    <input type="hidden" name="status" value="{{ status_info.status }}">
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button class="small-button" type="submit">Add</button>
+                </form>
+            </div>
+        </article>
         {% endfor %}
     </div>
 </section>

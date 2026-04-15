@@ -6,6 +6,8 @@ from . import views
 urlpatterns = [
     path("", views.home, name="home"),
     path("discussions/", views.discussions, name="discussions"),
+    path("discussions/add/", views.add_discussion, name="add-discussion"),
+    path("discussions/<int:discussion_id>/", views.discussion_detail, name="discussion-detail"),
     path("search/", views.search, name="search"),
     path("list/", views.list_home, name="list-home"),
     path("list/add/", views.save_to_list, name="save-to-list"),

@@ -6,8 +6,8 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from .form import LoginForm, RegisterForm
-from .models import Discussion, Media, PersonalList, SearchHistory
+from .form import DiscussionCommentForm, DiscussionForm, LoginForm, RegisterForm
+from .models import Discussion, DiscussionComment, Media, PersonalList, SearchHistory
 
 
 LIST_SECTIONS = [
@@ -130,6 +130,52 @@ def discussions(request):
     return render(request, "discussions.html", context)
 
 
+def add_discussion(request):
+    form = DiscussionForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        discussion = form.save(commit=False)
+        discussion.author_name = request.user.username if request.user.is_authenticated else "guest"
+        if not discussion.community:
+            discussion.community = "r/unitainment"
+        discussion.save()
+        messages.success(request, "Discussion created.")
+        return redirect("discussion-detail", discussion_id=discussion.id)
+
+    return render(
+        request,
+        "discussion_form.html",
+        {
+            "form": form,
+            "title": "Add Discussion",
+            "submit_label": "Post Discussion",
+        },
+    )
+
+
+def discussion_detail(request, discussion_id):
+    discussion = get_object_or_404(Discussion, id=discussion_id)
+    form = DiscussionCommentForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        comment = form.save(commit=False)
+        comment.discussion = discussion
+        if request.user.is_authenticated:
+            comment.author_name = request.user.username
+        comment.save()
+        discussion.comment_count = discussion.comments.count()
+        discussion.save(update_fields=["comment_count"])
+        messages.success(request, "Comment added.")
+        return redirect("discussion-detail", discussion_id=discussion.id)
+
+    context = {
+        "discussion": discussion,
+        "comments": discussion.comments.all(),
+        "form": form,
+    }
+    return render(request, "discussion_detail.html", context)
+
+
 def search(request):
     query = (request.GET.get("q") or "").strip()
     media_type = (request.GET.get("media_type") or "").strip()
@@ -166,8 +212,7 @@ def search(request):
         "selected_genre": genre,
         "recent_searches": _get_recent_searches(request),
         "hot_sections": _build_hot_sections(),
-        "type_choices": Media.MEDIA_TYPES,
-        "genres": genres,
+        "genres": [{"value": item, "label": item} for item in genres],
         "query_active": query_active,
     }
     return render(request, "search.html", context)

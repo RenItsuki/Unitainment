@@ -126,3 +126,20 @@ class Discussion(models.Model):
     @property
     def banner_url(self):
         return self.image_url or f"https://picsum.photos/seed/discussion-{self.pk}/900/600"
+
+
+class DiscussionComment(models.Model):
+    discussion = models.ForeignKey(
+        Discussion,
+        on_delete=models.CASCADE,
+        related_name="comments",
+    )
+    author_name = models.CharField(max_length=60)
+    body = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created"]
+
+    def __str__(self):
+        return f"{self.author_name} on {self.discussion}"

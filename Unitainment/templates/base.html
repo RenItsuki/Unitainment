@@ -2,15 +2,19 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unitainment</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
+
 <body>
     <nav class="navbar">
         <div class="nav-inner">
@@ -21,28 +25,28 @@
                 <a href="{% url 'discussions' %}">Discussions</a>
                 <a href="{% url 'search' %}">Search</a>
                 {% if request.user.is_authenticated %}
-                    <a href="{% url 'list-home' %}">List</a>
+                <a href="{% url 'list-home' %}">List</a>
                 {% endif %}
             </div>
 
             <div class="auth-links">
                 {% if request.user.is_authenticated %}
-                    <span class="user-pill">{{ request.user.username }}</span>
-                    <a href="{% url 'logout' %}">Logout</a>
+                <span class="user-pill">{{ request.user.username }}</span>
+                <a href="{% url 'logout' %}">Logout</a>
                 {% else %}
-                    <a href="{% url 'login' %}">Login</a>
-                    <a class="primary-link" href="{% url 'register' %}">Register</a>
+                <a href="{% url 'login' %}">Login</a>
+                <a class="primary-link" href="{% url 'register' %}">Register</a>
                 {% endif %}
             </div>
         </div>
     </nav>
 
     {% if messages %}
-        <div class="message-stack">
-            {% for message in messages %}
-                <div class="message">{{ message }}</div>
-            {% endfor %}
-        </div>
+    <div class="message-stack">
+        {% for message in messages %}
+        <div class="message">{{ message }}</div>
+        {% endfor %}
+    </div>
     {% endif %}
 
     <main class="container">
@@ -55,4 +59,5 @@
 
     <script src="{% static 'js/script.js' %}"></script>
 </body>
+
 </html>

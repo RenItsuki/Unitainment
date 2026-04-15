@@ -5,12 +5,8 @@
     <h1>Search</h1>
     <form method="get" class="search-form">
         <input type="text" name="q" value="{{ query }}" placeholder="Search title or genre">
-        {% if selected_type %}
-            <input type="hidden" name="media_type" value="{{ selected_type }}">
-        {% endif %}
-        {% if selected_genre %}
-            <input type="hidden" name="genre" value="{{ selected_genre }}">
-        {% endif %}
+        {% if selected_type %}<input type="hidden" name="media_type" value="{{ selected_type }}">{% endif %}
+        {% if selected_genre %}<input type="hidden" name="genre" value="{{ selected_genre }}">{% endif %}
         <button type="submit">Search</button>
     </form>
 
@@ -18,9 +14,11 @@
         <h3>Search by type</h3>
         <div class="chip-row">
             <a class="filter-chip {% if not selected_type %}active{% endif %}" href="{% url 'search' %}?{% if query %}q={{ query|urlencode }}{% endif %}{% if selected_genre %}{% if query %}&{% endif %}genre={{ selected_genre|urlencode }}{% endif %}">All</a>
-            {% for value, label in type_choices %}
-                <a class="filter-chip {% if selected_type == value %}active{% endif %}" href="{% url 'search' %}?{% if query %}q={{ query|urlencode }}&{% endif %}media_type={{ value|urlencode }}{% if selected_genre %}&genre={{ selected_genre|urlencode }}{% endif %}">{{ label }}</a>
-            {% endfor %}
+            <a class="filter-chip {% if selected_type == 'anime' %}active{% endif %}" href="{% url 'search' %}?{% if query %}q={{ query|urlencode }}&{% endif %}media_type=anime{% if selected_genre %}&genre={{ selected_genre|urlencode }}{% endif %}">Anime</a>
+            <a class="filter-chip {% if selected_type == 'game' %}active{% endif %}" href="{% url 'search' %}?{% if query %}q={{ query|urlencode }}&{% endif %}media_type=game{% if selected_genre %}&genre={{ selected_genre|urlencode }}{% endif %}">Game</a>
+            <a class="filter-chip {% if selected_type == 'book' %}active{% endif %}" href="{% url 'search' %}?{% if query %}q={{ query|urlencode }}&{% endif %}media_type=book{% if selected_genre %}&genre={{ selected_genre|urlencode }}{% endif %}">Book</a>
+            <a class="filter-chip {% if selected_type == 'webseries' %}active{% endif %}" href="{% url 'search' %}?{% if query %}q={{ query|urlencode }}&{% endif %}media_type=webseries{% if selected_genre %}&genre={{ selected_genre|urlencode }}{% endif %}">Web Series</a>
+            <a class="filter-chip {% if selected_type == 'movie' %}active{% endif %}" href="{% url 'search' %}?{% if query %}q={{ query|urlencode }}&{% endif %}media_type=movie{% if selected_genre %}&genre={{ selected_genre|urlencode }}{% endif %}">Movie</a>
         </div>
     </div>
 
@@ -28,8 +26,8 @@
         <h3>Search by genre</h3>
         <div class="chip-row">
             <a class="filter-chip {% if not selected_genre %}active{% endif %}" href="{% url 'search' %}?{% if query %}q={{ query|urlencode }}{% endif %}{% if selected_type %}{% if query %}&{% endif %}media_type={{ selected_type|urlencode }}{% endif %}">All genres</a>
-            {% for item in genres %}
-                <a class="filter-chip {% if selected_genre == item %}active{% endif %}" href="{% url 'search' %}?{% if query %}q={{ query|urlencode }}&{% endif %}{% if selected_type %}media_type={{ selected_type|urlencode }}&{% endif %}genre={{ item|urlencode }}">{{ item }}</a>
+            {% for choice in genres %}
+                <a class="filter-chip {% if selected_genre == choice.value %}active{% endif %}" href="{% url 'search' %}?{% if query %}q={{ query|urlencode }}&{% endif %}{% if selected_type %}media_type={{ selected_type|urlencode }}&{% endif %}genre={{ choice.value|urlencode }}">{{ choice.label }}</a>
             {% endfor %}
         </div>
     </div>
@@ -40,9 +38,7 @@
         <h2>Recent Searches</h2>
         <div class="simple-list">
             {% for item in recent_searches %}
-                <a class="simple-list-item" href="{% url 'search' %}?{% if item.query %}q={{ item.query|urlencode }}{% endif %}{% if item.media_type %}{% if item.query %}&{% endif %}media_type={{ item.media_type|urlencode }}{% endif %}{% if item.genre %}{% if item.query or item.media_type %}&{% endif %}genre={{ item.genre|urlencode }}{% endif %}">
-                    {% if item.query %}{{ item.query }}{% elif item.media_type %}{{ item.media_type|title }}{% else %}{{ item.genre }}{% endif %}
-                </a>
+                <a class="simple-list-item" href="{% url 'search' %}?{% if item.query %}q={{ item.query|urlencode }}{% endif %}{% if item.media_type %}{% if item.query %}&{% endif %}media_type={{ item.media_type|urlencode }}{% endif %}{% if item.genre %}{% if item.query or item.media_type %}&{% endif %}genre={{ item.genre|urlencode }}{% endif %}">{% if item.query %}{{ item.query }}{% elif item.media_type %}{{ item.media_type|title }}{% else %}{{ item.genre }}{% endif %}</a>
             {% empty %}
                 <p class="empty-note">No searches yet.</p>
             {% endfor %}

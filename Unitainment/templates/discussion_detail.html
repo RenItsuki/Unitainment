@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="panel section-block">
+    <a class="secondary-link" href="{% url 'discussions' %}">Back to Discussions</a>
+    <div class="discussion-detail">
+        <img src="{{ discussion.banner_url }}" alt="{{ discussion.topic }}">
+        <div class="discussion-main">
+            <h1>{{ discussion.topic }}</h1>
+            <p>{{ discussion.description }}</p>
+            <span class="meta-text">{{ discussion.community }} • {{ discussion.comment_count }} comments</span>
+        </div>
+    </div>
+</section>
+
+<section class="panel section-block">
+    <h2>Add a Comment</h2>
+    <form method="post" class="form-box">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+            <p class="form-error">{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="primary-link">Post Comment</button>
+    </form>
+</section>
+
+<section class="panel section-block">
+    <h2>Comments</h2>
+    <div class="simple-list">
+        {% for comment in comments %}
+        <div class="simple-list-item">
+            <strong>{{ comment.author_name }}</strong>
+            <p>{{ comment.body }}</p>
+            <span class="meta-text">{{ comment.created|timesince }} ago</span>
+        </div>
+        {% empty %}
+        <p class="empty-note">No comments yet.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
