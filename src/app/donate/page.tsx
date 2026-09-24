@@ -58,12 +58,14 @@ export default function DonatePage() {
 
   // Fetch recent public supporters
   useEffect(() => {
-    fetch("/api/donations")
+    fetch("/api/donations", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
-        if (data?.donations) setSupporters(data.donations);
+        if (data?.donations && Array.isArray(data.donations)) {
+          setSupporters(data.donations);
+        }
       })
-      .catch(() => {});
+      .catch((err) => console.error("Error fetching donations:", err));
   }, [successInfo]);
 
   const effectiveAmount = customAmount ? Number(customAmount) : selectedTier;
@@ -400,28 +402,37 @@ export default function DonatePage() {
               Be the very first supporter to be featured on the wall!
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               {supporters.map((item) => (
                 <div
                   key={item.id}
-                  className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col justify-between gap-2"
+                  className="p-4 rounded-2xl bg-white/[0.03] hover:bg-white/[0.05] border border-white/10 hover:border-cyan-500/30 transition-all flex flex-col justify-between gap-3 shadow-md"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-white text-sm">
-                      {item.donorName || "Anonymous Hero"}
-                    </span>
-                    <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500/30 to-purple-600/30 border border-cyan-500/40 flex items-center justify-center text-cyan-300 font-extrabold text-xs shadow-sm">
+                        {item.donorName ? item.donorName[0].toUpperCase() : "A"}
+                      </div>
+                      <div>
+                        <span className="font-extrabold text-white text-sm block">
+                          {item.donorName || "Anonymous Hero"}
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          {new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                        </span>
+                      </div>
+                    </div>
+
+                    <span className="px-3 py-1 rounded-full text-xs font-black bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm">
                       ₹{item.amount}
                     </span>
                   </div>
+
                   {item.message && (
-                    <p className="text-xs text-slate-300 italic bg-black/20 p-2.5 rounded-xl border border-white/5">
+                    <p className="text-xs text-slate-200 italic bg-black/30 p-3 rounded-xl border border-white/5 leading-relaxed">
                       &ldquo;{item.message}&rdquo;
                     </p>
                   )}
-                  <span className="text-[10px] text-slate-500">
-                    {new Date(item.createdAt).toLocaleDateString()}
-                  </span>
                 </div>
               ))}
             </div>
