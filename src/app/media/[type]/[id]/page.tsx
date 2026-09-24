@@ -29,7 +29,7 @@ import { getGameById } from "@/lib/api/rawg";
 import { StatusSelector } from "@/components/StatusSelector";
 import { ReviewSection } from "@/components/ReviewSection";
 import { UnifiedMediaItem } from "@/types";
-import { getOptimizedImageUrl, getFallbackPlaceholder } from "@/lib/imageHelper";
+import { MediaImage } from "@/components/MediaImage";
 
 interface PageProps {
   params: {
@@ -103,18 +103,10 @@ export default async function MediaDetailPage({ params }: PageProps) {
       <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-[#0c1220] shadow-2xl">
         {mediaItem.backdropUrl && (
           <div className="absolute inset-0 h-96 w-full overflow-hidden opacity-35 pointer-events-none">
-            <img
-              src={getOptimizedImageUrl(mediaItem.backdropUrl, mediaItem.type)}
+            <MediaImage
+              src={mediaItem.backdropUrl}
+              mediaType={mediaItem.type}
               alt={mediaItem.title}
-              referrerPolicy="no-referrer"
-              onError={(e) => {
-                const target = e.currentTarget as HTMLImageElement;
-                if (!target.src.includes("/api/image-proxy") && mediaItem.backdropUrl && !mediaItem.backdropUrl.startsWith("/")) {
-                  target.src = `/api/image-proxy?url=${encodeURIComponent(mediaItem.backdropUrl)}`;
-                } else {
-                  target.src = getFallbackPlaceholder(mediaItem.type);
-                }
-              }}
               className="w-full h-full object-cover object-center blur-xs scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0c1220] via-[#0c1220]/75 to-transparent" />
@@ -124,18 +116,10 @@ export default async function MediaDetailPage({ params }: PageProps) {
         <div className="relative z-10 p-6 sm:p-10 flex flex-col md:flex-row gap-8 items-start">
           {/* High-res Poster */}
           <div className="w-52 sm:w-64 shrink-0 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-slate-900 mx-auto md:mx-0">
-            <img
-              src={getOptimizedImageUrl(mediaItem.posterUrl, mediaItem.type)}
+            <MediaImage
+              src={mediaItem.posterUrl}
+              mediaType={mediaItem.type}
               alt={mediaItem.title}
-              referrerPolicy="no-referrer"
-              onError={(e) => {
-                const target = e.currentTarget as HTMLImageElement;
-                if (!target.src.includes("/api/image-proxy") && mediaItem.posterUrl && !mediaItem.posterUrl.startsWith("/")) {
-                  target.src = `/api/image-proxy?url=${encodeURIComponent(mediaItem.posterUrl)}`;
-                } else {
-                  target.src = getFallbackPlaceholder(mediaItem.type);
-                }
-              }}
               className="w-full h-full object-cover"
             />
           </div>
