@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { UserListRecord, ListStatus } from "@/types";
 import { AuthModal } from "@/components/AuthModal";
+import { getOptimizedImageUrl, getFallbackPlaceholder } from "@/lib/imageHelper";
 
 const TABS: { id: ListStatus | "ALL"; label: string; icon: any }[] = [
   { id: "ALL", label: "All Titles", icon: BookmarkCheck },
@@ -207,8 +208,17 @@ export default function LibraryPage() {
               >
                 <Link href={detailUrl} className="shrink-0 w-20 aspect-[2/3] rounded-xl overflow-hidden bg-slate-800 border border-white/10">
                   <img
-                    src={item.posterUrl || ""}
+                    src={getOptimizedImageUrl(item.posterUrl, item.type)}
                     alt={item.title}
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (!target.src.includes("/api/image-proxy") && item.posterUrl && !item.posterUrl.startsWith("/")) {
+                        target.src = `/api/image-proxy?url=${encodeURIComponent(item.posterUrl)}`;
+                      } else {
+                        target.src = getFallbackPlaceholder(item.type);
+                      }
+                    }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
                 </Link>

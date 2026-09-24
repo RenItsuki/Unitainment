@@ -18,10 +18,21 @@ export function MediaCard({ item }: MediaCardProps) {
 
   const fallback = getFallbackPlaceholder(item.type);
   const [imgSrc, setImgSrc] = useState<string>(() => getOptimizedImageUrl(item.posterUrl, item.type));
+  const [hasTriedProxy, setHasTriedProxy] = useState(false);
 
   useEffect(() => {
     setImgSrc(getOptimizedImageUrl(item.posterUrl, item.type));
+    setHasTriedProxy(false);
   }, [item.posterUrl, item.type]);
+
+  const handleImageError = () => {
+    if (!hasTriedProxy && item.posterUrl && !imgSrc.includes("/api/image-proxy") && !item.posterUrl.startsWith("/")) {
+      setHasTriedProxy(true);
+      setImgSrc(`/api/image-proxy?url=${encodeURIComponent(item.posterUrl)}`);
+    } else {
+      setImgSrc(fallback);
+    }
+  };
 
   const typeConfig = {
     MOVIE: { label: "IMDb Movie", icon: Film, color: "from-blue-500/80 to-cyan-500/80" },
@@ -41,7 +52,7 @@ export function MediaCard({ item }: MediaCardProps) {
           src={imgSrc}
           alt={item.title}
           referrerPolicy="no-referrer"
-          onError={() => setImgSrc(fallback)}
+          onError={handleImageError}
           className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />

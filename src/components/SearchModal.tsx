@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X, Film, Tv, Gamepad2, Star, Loader2 } from "lucide-react";
 import { UnifiedMediaItem, MediaType } from "@/types";
+import { getOptimizedImageUrl, getFallbackPlaceholder } from "@/lib/imageHelper";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -137,8 +138,17 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group"
                 >
                   <img
-                    src={item.posterUrl}
+                    src={getOptimizedImageUrl(item.posterUrl, item.type)}
                     alt={item.title}
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (!target.src.includes("/api/image-proxy") && item.posterUrl && !item.posterUrl.startsWith("/")) {
+                        target.src = `/api/image-proxy?url=${encodeURIComponent(item.posterUrl)}`;
+                      } else {
+                        target.src = getFallbackPlaceholder(item.type);
+                      }
+                    }}
                     className="w-12 h-16 rounded-lg object-cover bg-slate-800 shrink-0 border border-white/10 group-hover:border-cyan-500/50"
                   />
                   <div className="flex-1 min-w-0">
