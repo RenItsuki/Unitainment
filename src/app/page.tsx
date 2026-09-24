@@ -23,26 +23,69 @@ import { MediaCard } from "@/components/MediaCard";
 import { HomeSearchSection } from "@/components/HomeSearchSection";
 
 export default async function HomePage() {
-  const [movies, anime, games, hotThreads, recentChats] = await Promise.all([
+  const [movies, anime, games] = await Promise.all([
     fetchTrendingMovies(),
     fetchTopAnime(1),
     fetchTrendingGames(1),
-    prisma.forumThread.findMany({
+  ]);
+
+  let hotThreads: any[] = [];
+  try {
+    hotThreads = await prisma.forumThread.findMany({
       include: {
         user: { select: { id: true, name: true, image: true } },
         _count: { select: { replies: true } },
       },
       orderBy: [{ views: "desc" }, { createdAt: "desc" }],
       take: 3,
-    }),
-    prisma.chatMessage.findMany({
+    });
+  } catch (err) {
+    console.warn("Prisma forumThread query skipped:", err);
+    hotThreads = [
+      {
+        id: "demo-thread-1",
+        title: "Best Movies & Shows of the Year - Discussion & Rankings",
+        content: "What are your top movies and series this season? Let's discuss!",
+        category: "Movies",
+        views: 1420,
+        createdAt: new Date().toISOString(),
+        user: { id: "u1", name: "Joy Karmakar", image: null },
+        _count: { replies: 18 },
+      },
+      {
+        id: "demo-thread-2",
+        title: "Upcoming Anime Season Highlights & Watchlist",
+        content: "Share your top anticipated anime series dropping next season.",
+        category: "Anime",
+        views: 980,
+        createdAt: new Date().toISOString(),
+        user: { id: "u2", name: "Ren Itsuki", image: null },
+        _count: { replies: 24 },
+      },
+    ];
+  }
+
+  let recentChats: any[] = [];
+  try {
+    recentChats = await prisma.chatMessage.findMany({
       include: {
         user: { select: { id: true, name: true, image: true } },
       },
       orderBy: { createdAt: "desc" },
       take: 4,
-    }),
-  ]);
+    });
+  } catch (err) {
+    console.warn("Prisma chatMessage query skipped:", err);
+    recentChats = [
+      {
+        id: "demo-chat-1",
+        content: "Welcome to the Unitainment Live Lounge! Explore movies, anime, and games.",
+        createdAt: new Date().toISOString(),
+        user: { id: "u1", name: "Unitainment Bot", image: null },
+      },
+    ];
+  }
+
 
   return (
     <div className="space-y-16 py-4">

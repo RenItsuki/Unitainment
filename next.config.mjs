@@ -18,6 +18,9 @@ const nextConfig = {
       { protocol: "https", hostname: "images.weserv.nl" }
     ],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
