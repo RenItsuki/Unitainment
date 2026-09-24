@@ -52,9 +52,10 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Apply flexible filtering & sorting
+    // Apply flexible filtering & sorting (genre, country, audio, sort)
+    // Note: When q is present, items are already fetched and ranked by upstream search APIs (MAL, OMDB, Steam).
+    // We apply genre, country, audio, and sort without discarding fuzzy/alias search matches.
     const results = filterAndSortMedia(items, {
-      query: q,
       genre,
       country,
       audio,

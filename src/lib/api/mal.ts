@@ -6,12 +6,16 @@ const MAL_CLIENT_ID = process.env.MAL_CLIENT_ID || "42e1936b1e946faaa995110cc059
 
 function transformMalNode(node: any): UnifiedMediaItem {
   const poster = node.main_picture?.large || node.main_picture?.medium || "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&auto=format&fit=crop&q=80";
+  const enTitle = node.alternative_titles?.en?.trim();
+  const romajiTitle = node.title || "Untitled";
+  const displayTitle = enTitle || romajiTitle;
+
   return {
     id: `ANIME-${node.id}`,
     externalId: String(node.id),
     type: "ANIME",
-    title: node.title || "Untitled",
-    originalTitle: node.title,
+    title: displayTitle,
+    originalTitle: romajiTitle !== displayTitle ? romajiTitle : (node.alternative_titles?.ja || romajiTitle),
     posterUrl: poster,
     backdropUrl: poster,
     releaseDate: node.start_date || undefined,
@@ -504,9 +508,9 @@ export async function fetchTopAnime(page: number = 1): Promise<UnifiedMediaItem[
   // Try official MyAnimeList API v2 first
   if (MAL_CLIENT_ID) {
     try {
-      const offset = (page - 1) * 25;
+      const offset = (page - 1) * 50;
       const res = await fetch(
-        `${MAL_API_BASE}/anime/ranking?ranking_type=all&limit=25&offset=${offset}&fields=id,title,main_picture,mean,synopsis,genres,num_episodes,start_date,studios,status,num_scoring_users`,
+        `${MAL_API_BASE}/anime/ranking?ranking_type=all&limit=50&offset=${offset}&fields=id,title,main_picture,mean,synopsis,genres,num_episodes,start_date,studios,status,num_scoring_users,alternative_titles`,
         {
           headers: { "X-MAL-CLIENT-ID": MAL_CLIENT_ID },
           next: { revalidate: 3600 }
@@ -562,9 +566,9 @@ export async function searchAnime(query: string, page: number = 1): Promise<Unif
   // Try official MyAnimeList API v2 first
   if (MAL_CLIENT_ID) {
     try {
-      const offset = (page - 1) * 25;
+      const offset = (page - 1) * 30;
       const res = await fetch(
-        `${MAL_API_BASE}/anime?q=${encodeURIComponent(query)}&limit=25&offset=${offset}&fields=id,title,main_picture,mean,synopsis,genres,num_episodes,start_date,studios,status,num_scoring_users`,
+        `${MAL_API_BASE}/anime?q=${encodeURIComponent(query)}&limit=30&offset=${offset}&fields=id,title,main_picture,mean,synopsis,genres,num_episodes,start_date,studios,status,num_scoring_users,alternative_titles`,
         {
           headers: { "X-MAL-CLIENT-ID": MAL_CLIENT_ID },
           next: { revalidate: 300 }
@@ -572,10 +576,16 @@ export async function searchAnime(query: string, page: number = 1): Promise<Unif
       );
       if (res.ok) {
         const data = await res.json();
-        if (data.data && Array.isArray(data.data)) {
+        if (data.data && Array.isArray(data.data) && data.data.length > 0) {
           const fetched = data.data.map((item: any) => transformMalNode(item.node));
-          const combined = [...fetched, ...FALLBACK_ANIME];
-          return filterAndSortAnime(combined, { query });
+          const fallbackMatches = filterAndSortAnime(FALLBACK_ANIME, { query });
+          const combined = [...fetched, ...fallbackMatches];
+          const seen = new Set<string>();
+          return combined.filter(a => {
+            if (seen.has(a.id)) return false;
+            seen.add(a.id);
+            return true;
+          });
         }
       }
     } catch (err) {
@@ -597,8 +607,14 @@ export async function searchAnime(query: string, page: number = 1): Promise<Unif
       return filterAndSortAnime(FALLBACK_ANIME, { query });
     }
     const fetched = data.data.map(transformJikanItem);
-    const combined = [...fetched, ...FALLBACK_ANIME];
-    return filterAndSortAnime(combined, { query });
+    const fallbackMatches = filterAndSortAnime(FALLBACK_ANIME, { query });
+    const combined = [...fetched, ...fallbackMatches];
+    const seen = new Set<string>();
+    return combined.filter(a => {
+      if (seen.has(a.id)) return false;
+      seen.add(a.id);
+      return true;
+    });
   } catch (err) {
     return filterAndSortAnime(FALLBACK_ANIME, { query });
   }
@@ -611,7 +627,7 @@ export async function getAnimeById(id: string): Promise<UnifiedMediaItem | null>
   if (MAL_CLIENT_ID) {
     try {
       const res = await fetch(
-        `${MAL_API_BASE}/anime/${cleanId}?fields=id,title,main_picture,mean,synopsis,genres,num_episodes,start_date,studios,status,num_scoring_users`,
+        `${MAL_API_BASE}/anime/${cleanId}?fields=id,title,main_picture,mean,synopsis,genres,num_episodes,start_date,studios,status,num_scoring_users,alternative_titles`,
         {
           headers: { "X-MAL-CLIENT-ID": MAL_CLIENT_ID },
           next: { revalidate: 3600 }

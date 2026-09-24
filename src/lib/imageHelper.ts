@@ -21,18 +21,16 @@ export function getOptimizedImageUrl(url?: string | null, mediaType?: string): s
     return cleanUrl;
   }
 
-  // TMDB images are rock-solid globally via BunnyCDN
-  if (cleanUrl.includes("image.tmdb.org")) {
+  // TMDB & MyAnimeList CDN images are rock-solid globally and should load directly
+  if (cleanUrl.includes("image.tmdb.org") || cleanUrl.includes("myanimelist.net")) {
     return cleanUrl;
   }
 
-  // Steam images & rawg & MAL: proxy through Cloudflare's global wsrv edge cache
-  // This completely bypasses ISP DNS blocks, ERR_CONNECTION_RESET, and SSL untrusted cert issues
+  // Steam images: proxy through Cloudflare's global wsrv edge cache
+  // This completely bypasses ISP DNS blocks and ERR_CONNECTION_RESET
   if (
     cleanUrl.includes("steamstatic.com") ||
-    cleanUrl.includes("steampowered.com") ||
-    cleanUrl.includes("rawg.io") ||
-    cleanUrl.includes("myanimelist.net")
+    cleanUrl.includes("steampowered.com")
   ) {
     return `https://wsrv.nl/?url=${encodeURIComponent(cleanUrl)}&output=webp&q=85`;
   }
