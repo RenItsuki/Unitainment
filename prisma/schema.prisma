@@ -155,3 +155,19 @@ model ChatMessage {
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model Donation {
+  id                String   @id @default(cuid())
+  amount            Int      // amount in INR
+  currency          String   @default("INR")
+  donorName         String?
+  donorEmail        String?
+  message           String?
+  razorpayOrderId   String   @unique
+  razorpayPaymentId String?  @unique
+  status            String   @default("PENDING") // "PENDING", "SUCCESS", "FAILED"
+  isPublic          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+

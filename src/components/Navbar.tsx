@@ -17,7 +17,8 @@ import {
   LogOut, 
   Menu, 
   X,
-  Compass
+  Compass,
+  Heart
 } from "lucide-react";
 import { AuthModal } from "@/components/AuthModal";
 import { SearchModal } from "@/components/SearchModal";
@@ -38,6 +39,7 @@ export function Navbar() {
     if (path.startsWith("/games")) return "Video Games (RAWG & Steam)";
     if (path.startsWith("/forum")) return "Community Forums";
     if (path.startsWith("/chat")) return "Live Chat Lounge";
+    if (path.startsWith("/donate")) return "Support Unitainment";
     if (path.startsWith("/library")) return "My Library & Watchlist";
     if (path.startsWith("/profile")) return "User Profile";
     if (path.startsWith("/media")) return "Title Overview & Reviews";
@@ -51,6 +53,7 @@ export function Navbar() {
     { href: "/games", label: "Video Games", icon: Gamepad2, badge: "Steam & RAWG" },
     { href: "/forum", label: "Community Forums", icon: MessageSquare, badge: "Forms" },
     { href: "/chat", label: "Live Chat Lounge", icon: Radio, badge: "Live", pulse: true },
+    { href: "/donate", label: "Support Project", icon: Heart, badge: "Donate" },
     { href: "/library", label: "My Library", icon: BookmarkCheck, badge: "Tracking" },
   ];
 
@@ -105,6 +108,15 @@ export function Navbar() {
 
           {/* Right Action buttons */}
           <div className="flex items-center gap-2.5">
+            {/* Donate / Support Button */}
+            <Link
+              href="/donate"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 transition-all active:scale-95"
+            >
+              <Heart className="w-3.5 h-3.5 fill-rose-400 text-rose-400" />
+              <span>Donate</span>
+            </Link>
+
             {/* Mobile Search Button */}
             <button
               onClick={() => setSearchOpen(true)}

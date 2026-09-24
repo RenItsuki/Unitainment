@@ -1,7 +1,21 @@
+import type { Metadata } from "next";
 import { Gamepad2, ShieldCheck, Flame, Users } from "lucide-react";
 import { fetchTrendingGames } from "@/lib/api/rawg";
 import { fetchSteamFeaturedGames, getSteamCurrentPlayers } from "@/lib/api/steam";
 import { CategoryExplorer } from "@/components/CategoryExplorer";
+
+export const metadata: Metadata = {
+  title: "Video Games - Steam Top Sellers & Popular Releases",
+  description: "Explore trending PC and console video games with live Steam concurrent player counts, verified ratings, system requirements, and play status tracking.",
+  alternates: {
+    canonical: "/games",
+  },
+  openGraph: {
+    title: "Video Games | Unitainment",
+    description: "Explore trending PC and console video games with live Steam concurrent player counts.",
+    url: "/games",
+  },
+};
 
 export default async function GamesPage() {
   const [games, steamFeatured, cs2Players] = await Promise.all([

@@ -1,6 +1,20 @@
+import type { Metadata } from "next";
 import { Film } from "lucide-react";
 import { fetchTrendingMovies, fetchTrendingShows } from "@/lib/api/tmdb";
 import { CategoryExplorer } from "@/components/CategoryExplorer";
+
+export const metadata: Metadata = {
+  title: "Movies & TV Shows - Trending, Ratings & Watchlist",
+  description: "Browse trending movies, acclaimed TV series, and box office hits. Check IMDb scores, reviews, trailers, and track what to watch next.",
+  alternates: {
+    canonical: "/movies",
+  },
+  openGraph: {
+    title: "Movies & TV Shows | Unitainment",
+    description: "Browse trending movies, acclaimed TV series, and box office hits with IMDb ratings.",
+    url: "/movies",
+  },
+};
 
 export default async function MoviesPage() {
   const [movies, shows] = await Promise.all([

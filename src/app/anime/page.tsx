@@ -1,6 +1,20 @@
+import type { Metadata } from "next";
 import { Tv } from "lucide-react";
 import { fetchTopAnime } from "@/lib/api/mal";
 import { CategoryExplorer } from "@/components/CategoryExplorer";
+
+export const metadata: Metadata = {
+  title: "Anime & Manga - Top Ranked, Seasonal & Tracking",
+  description: "Explore top anime series, seasonal broadcasts, and movies directly integrated with MyAnimeList. Track episodes, score favorites, and discover recommendations.",
+  alternates: {
+    canonical: "/anime",
+  },
+  openGraph: {
+    title: "Anime & Manga | Unitainment",
+    description: "Explore top anime series, seasonal broadcasts, and movies integrated with MyAnimeList.",
+    url: "/anime",
+  },
+};
 
 export default async function AnimePage() {
   const animeList = await fetchTopAnime(1);

@@ -18,7 +18,8 @@ import {
   Flame, 
   CheckCircle2, 
   ChevronRight,
-  ShieldCheck
+  ShieldCheck,
+  Heart
 } from "lucide-react";
 import { AuthModal } from "@/components/AuthModal";
 
@@ -87,6 +88,16 @@ export function LeftNavbar() {
       color: "from-amber-500/20 to-emerald-500/20 text-emerald-300 border-emerald-500/40",
       iconColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
       match: (p: string) => p.startsWith("/chat"),
+    },
+    {
+      href: "/donate",
+      label: "Support Project",
+      badge: "Donate",
+      sublabel: "Fuel Server & Development",
+      icon: Heart,
+      color: "from-rose-500/20 to-pink-500/20 text-rose-300 border-rose-500/40",
+      iconColor: "text-rose-400 bg-rose-500/10 border-rose-500/20",
+      match: (p: string) => p.startsWith("/donate"),
     },
   ];
 

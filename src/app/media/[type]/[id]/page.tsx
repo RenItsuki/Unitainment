@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { 
   Star, 
@@ -38,6 +39,69 @@ interface PageProps {
   };
 }
 
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const mediaType = params.type.toUpperCase();
+  let mediaItem: UnifiedMediaItem | null = null;
+
+  try {
+    if (mediaType === "MOVIE" || mediaType === "SERIES") {
+      mediaItem = await getMovieOrShowById(mediaType as any, params.id);
+    } else if (mediaType === "ANIME") {
+      mediaItem = await getAnimeById(params.id);
+    } else if (mediaType === "GAME") {
+      mediaItem = await getGameById(params.id);
+    }
+  } catch {
+    // fallback gracefully on fetch error
+  }
+
+  if (!mediaItem) {
+    return {
+      title: "Media Details",
+      description: "Explore entertainment ratings, reviews, and tracking on Unitainment.",
+    };
+  }
+
+  const categoryLabel =
+    mediaItem.type === "ANIME" ? "Anime" :
+    mediaItem.type === "GAME" ? "Game" :
+    mediaItem.type === "SERIES" ? "TV Series" : "Movie";
+
+  const year = mediaItem.releaseDate ? `(${mediaItem.releaseDate.slice(0, 4)})` : "";
+  const title = `${mediaItem.title} ${year} - ${categoryLabel} Reviews, Score & Watchlist`;
+  const description = mediaItem.overview 
+    ? (mediaItem.overview.length > 160 ? mediaItem.overview.slice(0, 157) + "..." : mediaItem.overview)
+    : `Discover ratings, reviews, and track ${mediaItem.title} on Unitainment.`;
+  const image = mediaItem.backdropUrl || mediaItem.posterUrl || "/hero-banner.jpg";
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: mediaType === "MOVIE" ? "video.movie" : mediaType === "SERIES" || mediaType === "ANIME" ? "video.tv_show" : "website",
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: mediaItem.title,
+        }
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+    alternates: {
+      canonical: `/media/${params.type.toLowerCase()}/${params.id}`,
+    },
+  };
+}
+
 export default async function MediaDetailPage({ params }: PageProps) {
   const mediaType = params.type.toUpperCase();
   let mediaItem: UnifiedMediaItem | null = null;
@@ -74,8 +138,34 @@ export default async function MediaDetailPage({ params }: PageProps) {
   const youtubeMatch = mediaItem.trailerUrl?.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
   const youtubeId = youtubeMatch ? youtubeMatch[1] : null;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": isMovie ? "Movie" : isSeries || isAnime ? "TVSeries" : "VideoGame",
+    name: mediaItem.title,
+    description: mediaItem.overview,
+    image: mediaItem.posterUrl || mediaItem.backdropUrl,
+    datePublished: mediaItem.releaseDate,
+    genre: mediaItem.genres,
+    ...(mediaItem.score ? {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: mediaItem.score,
+        bestRating: 10,
+        worstRating: 1,
+        ratingCount: mediaItem.votes || 100,
+      }
+    } : {}),
+    ...(mediaItem.actors ? {
+      actor: mediaItem.actors.split(",").map((name) => ({ "@type": "Person", name: name.trim() }))
+    } : {}),
+  };
+
   return (
     <div className="space-y-10 pb-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Navigation Breadcrumb / Back button */}
       <div className="flex items-center justify-between">
         <Link
