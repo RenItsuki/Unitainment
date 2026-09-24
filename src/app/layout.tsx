@@ -4,6 +4,7 @@ import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/Navbar";
 import { LeftNavbar } from "@/components/LeftNavbar";
 import { UsernameOnboardingModal } from "@/components/UsernameOnboardingModal";
+import { Analytics } from "@vercel/analytics/next";
 
 export const viewport: Viewport = {
   themeColor: "#080c14",
@@ -168,6 +169,7 @@ export default function RootLayout({
               </div>
             </footer>
           </div>
+          <Analytics />
         </Providers>
       </body>
     </html>
