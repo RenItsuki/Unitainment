@@ -267,13 +267,21 @@ export function LeftNavbar() {
               </button>
             </div>
           ) : (
-            <button
-              onClick={() => setAuthModalOpen(true)}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold text-slate-950 bg-gradient-to-r from-cyan-400 to-purple-400 hover:from-cyan-300 hover:to-purple-300 rounded-xl transition-all shadow-md active:scale-95"
-            >
-              <User className="w-4 h-4" />
-              <span>Sign In / Demo Login</span>
-            </button>
+            <div className="flex flex-col gap-1.5">
+              <button
+                onClick={() => setAuthModalOpen(true)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold text-slate-950 bg-gradient-to-r from-cyan-400 to-purple-400 hover:from-cyan-300 hover:to-purple-300 rounded-xl transition-all shadow-md active:scale-95"
+              >
+                <User className="w-4 h-4" />
+                <span>Sign In / Register</span>
+              </button>
+              <Link
+                href="/login"
+                className="w-full text-center text-[10px] text-slate-400 hover:text-cyan-400 transition-colors py-0.5"
+              >
+                Open Full Login Page →
+              </Link>
+            </div>
           )}
         </div>
       </aside>

@@ -89,6 +89,9 @@ export default function ProfilePage() {
             <span>Unitainment Explorer</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-white">{session.user.name}</h1>
+          {(session.user as any)?.username && (
+            <p className="text-xs font-bold text-cyan-400 font-mono">@{(session.user as any).username}</p>
+          )}
           <p className="text-xs text-slate-400">{session.user.email}</p>
         </div>
 
