@@ -108,6 +108,7 @@ export async function POST(req: Request) {
         name: name?.trim() || cleanUsername,
         image: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanUsername)}`,
         bio: "Explorer of Movies, Anime & Games on Unitainment.",
+        hasCustomUsername: true,
       },
       select: {
         id: true,

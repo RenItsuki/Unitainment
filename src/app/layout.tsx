@@ -3,6 +3,7 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/Navbar";
 import { LeftNavbar } from "@/components/LeftNavbar";
+import { UsernameOnboardingModal } from "@/components/UsernameOnboardingModal";
 
 export const viewport: Viewport = {
   themeColor: "#080c14",
@@ -133,6 +134,9 @@ export default function RootLayout({
         <Providers>
           {/* Left Navbar Sidebar (Persistent across app for Movies, Anime, Games, Forums, Live Chat) */}
           <LeftNavbar />
+
+          {/* Onboarding modal to pick custom username for new sign-ins */}
+          <UsernameOnboardingModal />
 
           {/* Main Layout Area offset to the right on desktop */}
           <div className="flex-1 min-w-0 md:pl-64 lg:pl-72 flex flex-col min-h-screen">

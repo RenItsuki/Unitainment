@@ -43,6 +43,7 @@ model User {
   password      String?
   image         String?
   bio           String?         @default("Entertainment enthusiast")
+  hasCustomUsername Boolean       @default(false)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 

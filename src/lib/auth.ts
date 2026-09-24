@@ -175,16 +175,17 @@ export const authOptions: NextAuthOptions = {
         }
       }
 
-      // Refresh username and id from database if missing
-      if (token.email && (!token.id || !token.username)) {
+      // Refresh username and id from database
+      if (token.email) {
         try {
           const dbUser = await prisma.user.findUnique({
             where: { email: token.email },
-            select: { id: true, username: true, name: true, bio: true, image: true },
+            select: { id: true, username: true, name: true, bio: true, image: true, hasCustomUsername: true },
           });
           if (dbUser) {
             token.id = dbUser.id;
             token.username = dbUser.username;
+            token.hasCustomUsername = dbUser.hasCustomUsername;
             if (dbUser.name) token.name = dbUser.name;
             if (dbUser.image) token.picture = dbUser.image;
           }
@@ -200,6 +201,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         (session.user as any).id = token.id || token.sub;
         (session.user as any).username = token.username || null;
+        (session.user as any).hasCustomUsername = token.hasCustomUsername ?? false;
       }
       return session;
     },
