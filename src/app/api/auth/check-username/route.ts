@@ -20,60 +20,86 @@ const RESERVED_USERNAMES = new Set([
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const rawUsername = searchParams.get("username")?.trim().toLowerCase();
+    const rawInput = searchParams.get("username")?.trim() || "";
 
-    if (!rawUsername) {
+    // Strip leading '@' if provided
+    const cleanUsername = rawInput.replace(/^@/, "").trim().toLowerCase();
+
+    if (!cleanUsername) {
       return NextResponse.json(
-        { available: false, message: "Username is required." },
+        { available: false, inDatabase: false, message: "Please enter a username." },
         { status: 400 }
       );
     }
 
-    // Format validation: 3-20 characters, alphanumeric and underscore only
-    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
-    if (!usernameRegex.test(rawUsername)) {
-      return NextResponse.json(
-        {
-          available: false,
-          message:
-            "Username must be 3-20 characters long and contain only letters, numbers, or underscores.",
-        },
-        { status: 400 }
-      );
-    }
+    // Normalized alphanumeric string (ignoring spaces, dashes, dots, underscores)
+    const stripped = cleanUsername.replace(/[\s\-_.]/g, "");
 
-    if (RESERVED_USERNAMES.has(rawUsername)) {
-      return NextResponse.json(
-        { available: false, message: "This username is reserved." },
-        { status: 400 }
-      );
-    }
-
-    // Check database for existing username
-    const existing = await prisma.user.findFirst({
-      where: {
-        username: {
-          equals: rawUsername,
-        },
-      },
-      select: { id: true },
-    });
-
-    if (existing) {
+    if (RESERVED_USERNAMES.has(cleanUsername) || RESERVED_USERNAMES.has(stripped)) {
       return NextResponse.json({
         available: false,
-        message: `Username "@${rawUsername}" is already taken.`,
+        inDatabase: true,
+        message: "Not available (this username is reserved).",
       });
     }
 
+    // Format validation: 3-25 characters
+    if (cleanUsername.length < 3 || cleanUsername.length > 25) {
+      return NextResponse.json(
+        {
+          available: false,
+          inDatabase: false,
+          message: "Username must be between 3 and 25 characters.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check database to see if this user or username already exists
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        email: true,
+      },
+    });
+
+    const match = users.find((u) => {
+      const dbUsername = u.username?.toLowerCase();
+      const dbStrippedUser = dbUsername?.replace(/[\s\-_.]/g, "");
+      const dbName = u.name?.toLowerCase();
+      const dbStrippedName = dbName?.replace(/[\s\-_.]/g, "");
+      const dbEmailPrefix = u.email?.split("@")[0].toLowerCase().replace(/[\s\-_.]/g, "");
+
+      return (
+        dbUsername === cleanUsername ||
+        dbStrippedUser === stripped ||
+        dbName === cleanUsername ||
+        dbStrippedName === stripped ||
+        dbEmailPrefix === stripped
+      );
+    });
+
+    if (match) {
+      // It IS already in the database -> NOT AVAILABLE for registration
+      return NextResponse.json({
+        available: false,
+        inDatabase: true,
+        message: `Not available (already in the database as @${match.username || cleanUsername}).`,
+      });
+    }
+
+    // It is NOT in the database -> AVAILABLE for registration
     return NextResponse.json({
       available: true,
-      message: `Username "@${rawUsername}" is available!`,
+      inDatabase: false,
+      message: `Available (not in database)!`,
     });
   } catch (error: any) {
-    console.error("Error checking username availability:", error);
+    console.error("Error checking username in database:", error);
     return NextResponse.json(
-      { available: false, message: "Error checking username availability." },
+      { available: false, inDatabase: false, message: "Error checking database." },
       { status: 500 }
     );
   }
