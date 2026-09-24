@@ -1,6 +1,34 @@
 import { UnifiedMediaItem } from "@/types";
 
 const JIKAN_BASE_URL = "https://api.jikan.moe/v4";
+const MAL_API_BASE = "https://api.myanimelist.net/v2";
+const MAL_CLIENT_ID = process.env.MAL_CLIENT_ID || "42e1936b1e946faaa995110cc059bfe4";
+
+function transformMalNode(node: any): UnifiedMediaItem {
+  const poster = node.main_picture?.large || node.main_picture?.medium || "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&auto=format&fit=crop&q=80";
+  return {
+    id: `ANIME-${node.id}`,
+    externalId: String(node.id),
+    type: "ANIME",
+    title: node.title || "Untitled",
+    originalTitle: node.title,
+    posterUrl: poster,
+    backdropUrl: poster,
+    releaseDate: node.start_date || undefined,
+    overview: node.synopsis || "No synopsis available.",
+    genres: Array.isArray(node.genres) ? node.genres.map((g: any) => g.name) : ["Anime"],
+    score: node.mean || 8.0,
+    votes: node.num_scoring_users || 50000,
+    episodes: node.num_episodes || undefined,
+    seasons: 1,
+    runtime: "24 min / ep",
+    country: "Japan",
+    audioLanguage: "BOTH",
+    studioOrDeveloper: node.studios?.[0]?.name || "Anime Studio",
+    sourceUrl: `https://myanimelist.net/anime/${node.id}`,
+    statusText: node.status ? node.status.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()) : "Finished Airing"
+  };
+}
 
 // High quality, rich anime catalog with verified working CDN poster assets
 export const FALLBACK_ANIME: UnifiedMediaItem[] = [
@@ -473,6 +501,36 @@ export function filterAndSortAnime(
 }
 
 export async function fetchTopAnime(page: number = 1): Promise<UnifiedMediaItem[]> {
+  // Try official MyAnimeList API v2 first
+  if (MAL_CLIENT_ID) {
+    try {
+      const offset = (page - 1) * 25;
+      const res = await fetch(
+        `${MAL_API_BASE}/anime/ranking?ranking_type=all&limit=25&offset=${offset}&fields=id,title,main_picture,mean,synopsis,genres,num_episodes,start_date,studios,status,num_scoring_users`,
+        {
+          headers: { "X-MAL-CLIENT-ID": MAL_CLIENT_ID },
+          next: { revalidate: 3600 }
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data.data && Array.isArray(data.data)) {
+          const fetched = data.data.map((item: any) => transformMalNode(item.node));
+          const combined = [...fetched, ...FALLBACK_ANIME];
+          const seen = new Set<string>();
+          return combined.filter(a => {
+            if (seen.has(a.id)) return false;
+            seen.add(a.id);
+            return true;
+          });
+        }
+      }
+    } catch (err) {
+      console.warn("Official MAL API ranking fetch failed, using fallback:", err);
+    }
+  }
+
+  // Fallback to Jikan
   try {
     const res = await fetch(`${JIKAN_BASE_URL}/top/anime?limit=25&page=${page}`, {
       next: { revalidate: 3600 },
@@ -500,6 +558,32 @@ export async function fetchTopAnime(page: number = 1): Promise<UnifiedMediaItem[
 
 export async function searchAnime(query: string, page: number = 1): Promise<UnifiedMediaItem[]> {
   if (!query.trim()) return fetchTopAnime(page);
+
+  // Try official MyAnimeList API v2 first
+  if (MAL_CLIENT_ID) {
+    try {
+      const offset = (page - 1) * 25;
+      const res = await fetch(
+        `${MAL_API_BASE}/anime?q=${encodeURIComponent(query)}&limit=25&offset=${offset}&fields=id,title,main_picture,mean,synopsis,genres,num_episodes,start_date,studios,status,num_scoring_users`,
+        {
+          headers: { "X-MAL-CLIENT-ID": MAL_CLIENT_ID },
+          next: { revalidate: 300 }
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data.data && Array.isArray(data.data)) {
+          const fetched = data.data.map((item: any) => transformMalNode(item.node));
+          const combined = [...fetched, ...FALLBACK_ANIME];
+          return filterAndSortAnime(combined, { query });
+        }
+      }
+    } catch (err) {
+      console.warn("Official MAL API search failed, using fallback:", err);
+    }
+  }
+
+  // Fallback to Jikan
   try {
     const res = await fetch(`${JIKAN_BASE_URL}/anime?q=${encodeURIComponent(query)}&limit=25&page=${page}`, {
       next: { revalidate: 300 },
@@ -521,11 +605,34 @@ export async function searchAnime(query: string, page: number = 1): Promise<Unif
 }
 
 export async function getAnimeById(id: string): Promise<UnifiedMediaItem | null> {
-  const fallback = FALLBACK_ANIME.find(a => a.externalId === id || a.id === `ANIME-${id}` || a.id === id);
+  const cleanId = id.replace(/^(ANIME-|anime-)/i, "");
+
+  // Try official MyAnimeList API v2
+  if (MAL_CLIENT_ID) {
+    try {
+      const res = await fetch(
+        `${MAL_API_BASE}/anime/${cleanId}?fields=id,title,main_picture,mean,synopsis,genres,num_episodes,start_date,studios,status,num_scoring_users`,
+        {
+          headers: { "X-MAL-CLIENT-ID": MAL_CLIENT_ID },
+          next: { revalidate: 3600 }
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.id) {
+          return transformMalNode(data);
+        }
+      }
+    } catch (err) {
+      console.warn("Official MAL API getById failed, using fallback:", err);
+    }
+  }
+
+  const fallback = FALLBACK_ANIME.find(a => a.externalId === cleanId || a.id === `ANIME-${cleanId}` || a.id === id);
   if (fallback) return fallback;
 
   try {
-    const res = await fetch(`${JIKAN_BASE_URL}/anime/${id}`, {
+    const res = await fetch(`${JIKAN_BASE_URL}/anime/${cleanId}`, {
       next: { revalidate: 3600 },
       headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" }
     });
