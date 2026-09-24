@@ -45,7 +45,7 @@ export async function POST(req: Request) {
 
     if (RESERVED_USERNAMES.has(cleanUsername)) {
       return NextResponse.json(
-        { error: "This username is reserved. Please pick another." },
+        { error: "This username is already taken. Please choose something else." },
         { status: 400 }
       );
     }
@@ -80,7 +80,7 @@ export async function POST(req: Request) {
     });
     if (existingUsername) {
       return NextResponse.json(
-        { error: `The username "@${cleanUsername}" is already taken.` },
+        { error: "This username is already taken. Please choose something else." },
         { status: 400 }
       );
     }

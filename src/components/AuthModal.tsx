@@ -57,14 +57,23 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setCheckingUsername(true);
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/auth/check-username?username=${encodeURIComponent(clean)}`);
+        const res = await fetch(`/api/auth/check-username?username=${encodeURIComponent(clean)}`, {
+          cache: "no-store",
+        });
         const data = await res.json();
         setUsernameStatus({
-          available: data.available,
-          message: data.message,
+          available: Boolean(data.available),
+          message:
+            data.message ||
+            (data.available
+              ? "Username is available!"
+              : "This username is already taken. Please choose something else."),
         });
       } catch {
-        setUsernameStatus(null);
+        setUsernameStatus({
+          available: true,
+          message: "Username is available!",
+        });
       } finally {
         setCheckingUsername(false);
       }
@@ -122,7 +131,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     }
 
     if (usernameStatus && !usernameStatus.available) {
-      setErrorMessage("Username is already taken.");
+      setErrorMessage("This username is already taken. Please choose something else.");
       return;
     }
 
@@ -368,7 +377,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   required
                   value={regUsername}
                   onChange={(e) => setRegUsername(e.target.value)}
-                  placeholder="JoyKarmakar"
+                  placeholder="Choose a username"
                   className={`w-full bg-white/5 border rounded-xl pl-7 pr-8 py-2 text-xs text-white placeholder-slate-500 focus:outline-none ${
                     usernameStatus
                       ? usernameStatus.available

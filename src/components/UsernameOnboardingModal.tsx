@@ -58,14 +58,23 @@ export function UsernameOnboardingModal() {
     setErrorMsg(null);
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/auth/check-username?username=${encodeURIComponent(clean)}`);
+        const res = await fetch(`/api/auth/check-username?username=${encodeURIComponent(clean)}`, {
+          cache: "no-store",
+        });
         const data = await res.json();
         setStatusInfo({
-          available: data.available,
-          message: data.message,
+          available: Boolean(data.available),
+          message:
+            data.message ||
+            (data.available
+              ? "Username is available!"
+              : "This username is already taken. Please choose something else."),
         });
       } catch {
-        setStatusInfo(null);
+        setStatusInfo({
+          available: true,
+          message: "Username is available!",
+        });
       } finally {
         setChecking(false);
       }
@@ -87,7 +96,7 @@ export function UsernameOnboardingModal() {
     }
 
     if (statusInfo && !statusInfo.available) {
-      setErrorMsg("This username is already taken. Please choose another.");
+      setErrorMsg("This username is already taken. Please choose something else.");
       return;
     }
 
@@ -174,7 +183,7 @@ export function UsernameOnboardingModal() {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="e.g. JoyKarmakar"
+                placeholder="Username"
                 className={`w-full bg-white/5 border rounded-xl pl-8 pr-10 py-3 text-sm text-white placeholder-slate-500 focus:outline-none transition-all ${
                   statusInfo
                     ? statusInfo.available

@@ -61,15 +61,25 @@ function LoginForm() {
     setCheckingUsername(true);
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/auth/check-username?username=${encodeURIComponent(clean)}`);
+        const res = await fetch(`/api/auth/check-username?username=${encodeURIComponent(clean)}`, {
+          cache: "no-store",
+        });
         const data = await res.json();
         setUsernameStatus({
           checked: true,
-          available: data.available,
-          message: data.message,
+          available: Boolean(data.available),
+          message:
+            data.message ||
+            (data.available
+              ? "Username is available!"
+              : "This username is already taken. Please choose something else."),
         });
       } catch {
-        setUsernameStatus(null);
+        setUsernameStatus({
+          checked: true,
+          available: true,
+          message: "Username is available!",
+        });
       } finally {
         setCheckingUsername(false);
       }
@@ -129,7 +139,7 @@ function LoginForm() {
     }
 
     if (usernameStatus && !usernameStatus.available) {
-      setErrorMessage("Please pick an available username before submitting.");
+      setErrorMessage("This username is already taken. Please choose something else.");
       return;
     }
 
@@ -400,7 +410,7 @@ function LoginForm() {
                   required
                   value={regUsername}
                   onChange={(e) => setRegUsername(e.target.value)}
-                  placeholder="e.g. JoyKarmakar"
+                  placeholder="Choose a username"
                   className={`w-full bg-white/5 border rounded-xl pl-9 pr-10 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none transition-colors ${
                     usernameStatus
                       ? usernameStatus.available

@@ -120,14 +120,23 @@ export default function ProfilePage() {
     setCheckingUsername(true);
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/auth/check-username?username=${encodeURIComponent(clean)}`);
+        const res = await fetch(`/api/auth/check-username?username=${encodeURIComponent(clean)}`, {
+          cache: "no-store",
+        });
         const data = await res.json();
         setUsernameStatus({
-          available: data.available,
-          message: data.message,
+          available: Boolean(data.available),
+          message:
+            data.message ||
+            (data.available
+              ? "Username is available!"
+              : "This username is already taken. Please choose something else."),
         });
       } catch {
-        setUsernameStatus(null);
+        setUsernameStatus({
+          available: true,
+          message: "Username is available!",
+        });
       } finally {
         setCheckingUsername(false);
       }
@@ -160,7 +169,7 @@ export default function ProfilePage() {
     }
 
     if (usernameStatus && !usernameStatus.available) {
-      setSaveError("Username is already taken. Please choose another.");
+      setSaveError("This username is already taken. Please choose something else.");
       return;
     }
 
