@@ -1,0 +1,157 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String?         @unique
+  emailVerified DateTime?
+  image         String?
+  bio           String?         @default("Entertainment enthusiast")
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  listEntries   UserListEntry[]
+  reviews       Review[]
+  forumThreads  ForumThread[]
+  forumReplies  ForumReply[]
+  chatMessages  ChatMessage[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model MediaItem {
+  id           String          @id @default(cuid())
+  externalId   String          // external ID from TMDB, Jikan, or RAWG
+  type         String          // "MOVIE", "SERIES", "ANIME", "GAME"
+  title        String
+  originalTitle String?
+  posterUrl    String?
+  backdropUrl  String?
+  releaseDate  String?
+  overview     String?
+  genres       String?         // comma-separated or JSON string
+  score        Float?          // official score (IMDb/MAL/RAWG)
+  votes        Int?
+  episodes     Int?            // for anime/series
+  platforms    String?         // for games
+  trailerUrl   String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  listEntries  UserListEntry[]
+  reviews      Review[]
+
+  @@unique([externalId, type])
+}
+
+model UserListEntry {
+  id          String    @id @default(cuid())
+  userId      String
+  mediaItemId String
+  status      String    // "PLAN_TO_WATCH", "WATCHING", "COMPLETED", "ON_HOLD", "DROPPED"
+  progress    Int       @default(0) // episodes watched or hours played
+  rating      Int?      // 1 to 10
+  favorite    Boolean   @default(false)
+  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime  @default(now())
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mediaItem   MediaItem @relation(fields: [mediaItemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, mediaItemId])
+}
+
+model Review {
+  id          String    @id @default(cuid())
+  userId      String
+  mediaItemId String
+  rating      Int       // 1-10
+  title       String
+  content     String
+  likes       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mediaItem   MediaItem @relation(fields: [mediaItemId], references: [id], onDelete: Cascade)
+}
+
+model ForumThread {
+  id        String       @id @default(cuid())
+  userId    String
+  category  String       // "GENERAL", "MOVIES", "ANIME", "GAMES"
+  title     String
+  content   String
+  tags      String?
+  views     Int          @default(0)
+  likes     Int          @default(0)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replies   ForumReply[]
+}
+
+model ForumReply {
+  id        String      @id @default(cuid())
+  threadId  String
+  userId    String
+  content   String
+  likes     Int         @default(0)
+  createdAt DateTime    @default(now())
+
+  thread    ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  channel   String   // "global", "movies", "anime", "games"
+  message   String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
