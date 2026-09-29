@@ -45,7 +45,7 @@ export default function ForumPage() {
     setLoading(true);
     try {
       const url = activeBoard === "ALL" ? "/api/forum" : `/api/forum?category=${activeBoard}`;
-      const res = await fetch(url);
+      const res = await fetch(url, { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         setThreads(data.threads || []);
@@ -87,10 +87,14 @@ export default function ForumPage() {
         setContent("");
         setTags("");
         setCreateModalOpen(false);
-        fetchThreads();
+        await fetchThreads();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || "Failed to create thread. Please try again.");
       }
     } catch (err) {
       console.error("Error creating thread:", err);
+      alert("Error connecting to server. Please try again.");
     } finally {
       setSubmitting(false);
     }

@@ -164,7 +164,7 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
 
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session: updateSession }) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
@@ -175,22 +175,70 @@ export const authOptions: NextAuthOptions = {
         }
       }
 
-      // Refresh username and id from database
+      // Handle session update (e.g. from client update() call)
+      if (trigger === "update" && updateSession) {
+        if (updateSession.username) token.username = updateSession.username;
+        if (updateSession.hasCustomUsername !== undefined) {
+          token.hasCustomUsername = updateSession.hasCustomUsername;
+        }
+      }
+
+      // Refresh username and ensure DB user exists
       if (token.email) {
         try {
-          const dbUser = await prisma.user.findUnique({
+          let dbUser = await prisma.user.findUnique({
             where: { email: token.email },
-            select: { id: true, username: true, name: true, bio: true, image: true, hasCustomUsername: true },
+            select: {
+              id: true,
+              username: true,
+              name: true,
+              bio: true,
+              image: true,
+              hasCustomUsername: true,
+            },
           });
+
+          if (!dbUser) {
+            const base = (token.name || token.email.split("@")[0])
+              .toLowerCase()
+              .replace(/[^a-zA-Z0-9_]/g, "")
+              .slice(0, 12);
+            let candidateUsername = base || "user";
+            const nameClash = await prisma.user.findFirst({
+              where: { username: candidateUsername },
+            });
+            if (nameClash) {
+              candidateUsername = `${candidateUsername}_${Math.floor(100 + Math.random() * 900)}`;
+            }
+
+            dbUser = await prisma.user.create({
+              data: {
+                name: token.name || "User",
+                username: candidateUsername,
+                email: token.email,
+                image: token.picture,
+                hasCustomUsername: false,
+              },
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                bio: true,
+                image: true,
+                hasCustomUsername: true,
+              },
+            });
+          }
+
           if (dbUser) {
-            token.id = dbUser.id;
+            token.id = dbUser.id; // Map to SQLite cuid
             token.username = dbUser.username;
             token.hasCustomUsername = dbUser.hasCustomUsername;
             if (dbUser.name) token.name = dbUser.name;
             if (dbUser.image) token.picture = dbUser.image;
           }
         } catch (e) {
-          // ignore DB read error in jwt
+          console.warn("Could not sync user in jwt callback:", e);
         }
       }
 

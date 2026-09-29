@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getOrCreateSessionUser } from "@/lib/user";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const RESERVED_USERNAMES = new Set([
   "admin",
@@ -26,25 +28,23 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: {
-        id: true,
-        name: true,
-        username: true,
-        email: true,
-        bio: true,
-        image: true,
-        hasCustomUsername: true,
-        createdAt: true,
-      },
-    });
-
+    const user = await getOrCreateSessionUser(session);
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ user });
+    return NextResponse.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        bio: user.bio,
+        image: user.image,
+        hasCustomUsername: user.hasCustomUsername,
+        createdAt: user.createdAt,
+      },
+    });
   } catch (error: any) {
     console.error("Error fetching user profile:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -58,13 +58,12 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const currentUser = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { id: true, username: true },
-    });
-
+    const currentUser = await getOrCreateSessionUser(session);
     if (!currentUser) {
-      return NextResponse.json({ error: "User not found in database" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Could not load or initialize user account. Please try again." },
+        { status: 500 }
+      );
     }
 
     const body = await req.json().catch(() => ({}));
@@ -107,7 +106,7 @@ export async function PATCH(req: Request) {
 
       if (RESERVED_USERNAMES.has(cleanUsername)) {
         return NextResponse.json(
-          { error: "This username is reserved. Please pick another." },
+          { error: "This username is already taken. Please choose something else." },
           { status: 400 }
         );
       }
@@ -123,7 +122,7 @@ export async function PATCH(req: Request) {
 
         if (existing) {
           return NextResponse.json(
-            { error: `The username "@${cleanUsername}" is already taken by another user.` },
+            { error: "This username is already taken. Please choose something else." },
             { status: 400 }
           );
         }

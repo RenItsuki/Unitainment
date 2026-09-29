@@ -36,7 +36,9 @@ export default function ChatPage() {
   const fetchMessages = async (showLoading = false) => {
     if (showLoading) setLoading(true);
     try {
-      const res = await fetch(`/api/chat?channel=${currentChannel}`);
+      const res = await fetch(`/api/chat?channel=${currentChannel}`, {
+        cache: "no-store",
+      });
       if (res.ok) {
         const data = await res.json();
         setMessages(data.messages || []);
@@ -89,10 +91,16 @@ export default function ChatPage() {
       });
 
       if (res.ok) {
-        fetchMessages(false);
+        await fetchMessages(false);
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        setInputText(msgToSend);
+        alert(errData.error || "Failed to send message. Please try again.");
       }
     } catch (err) {
       console.error("Failed to send message:", err);
+      setInputText(msgToSend);
+      alert("Error sending message. Please try again.");
     } finally {
       setSending(false);
     }

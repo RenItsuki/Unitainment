@@ -12,7 +12,7 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-const baseUrl = process.env.NEXTAUTH_URL || "https://unitainment.renitsuki.in";
+const baseUrl = "https://unitainment.renitsuki.in";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
@@ -23,6 +23,11 @@ export const metadata: Metadata = {
   description:
     "The all-in-one entertainment tracker & community. Discover, rate, and track movies, TV shows, anime, and Steam games with IMDb, MyAnimeList, and RAWG integrations.",
   keywords: [
+    "unitainment",
+    "unitainment.renitsuki.in",
+    "unitainment renitsuki",
+    "renitsuki unitainment",
+    "renitsuki",
     "entertainment tracker",
     "movie watchlist",
     "anime tracker",
@@ -34,8 +39,10 @@ export const metadata: Metadata = {
     "unified entertainment",
     "anime community",
     "entertainment forum",
-    "renitsuki unitainment",
   ],
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
   authors: [{ name: "Ren Itsuki", url: "https://renitsuki.in" }],
   creator: "Ren Itsuki",
   publisher: "Unitainment",
@@ -103,6 +110,11 @@ export default function RootLayout({
         "@id": `${baseUrl}/#website`,
         "url": baseUrl,
         "name": "Unitainment",
+        "alternateName": [
+          "Unitainment Renitsuki",
+          "Renitsuki Unitainment",
+          "unitainment.renitsuki.in"
+        ],
         "description": "Unified Entertainment Platform for Movies, TV Shows, Anime, and Video Games",
         "potentialAction": {
           "@type": "SearchAction",
