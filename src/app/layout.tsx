@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     "entertainment forum",
   ],
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "P096yNB35GJVXINaJdSLZ1F7NcVSDMhRmnI",
   },
   authors: [{ name: "Ren Itsuki", url: "https://renitsuki.in" }],
   creator: "Ren Itsuki",
