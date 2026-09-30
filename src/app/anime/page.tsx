@@ -33,8 +33,18 @@ export default async function AnimePage() {
     "Shounen",
   ];
 
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://unitainment.renitsuki.in" },
+      { "@type": "ListItem", "position": 2, "name": "Anime", "item": "https://unitainment.renitsuki.in/anime" }
+    ]
+  };
+
   return (
     <div className="space-y-8 py-4">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
       {/* Page Header */}
       <div className="rounded-3xl border border-white/10 bg-gradient-to-r from-purple-950/40 via-pink-950/20 to-[#080c14] p-8 sm:p-10 shadow-xl">
         <div className="flex items-center gap-3 mb-2">

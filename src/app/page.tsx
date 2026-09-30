@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { 
   Film, 
@@ -21,6 +22,21 @@ import { fetchTrendingGames } from "@/lib/api/rawg";
 import { prisma } from "@/lib/prisma";
 import { MediaCard } from "@/components/MediaCard";
 import { HomeSearchSection } from "@/components/HomeSearchSection";
+
+export const metadata: Metadata = {
+  title: "Unitainment — Movies, Anime, TV Shows & Games in One Place",
+  description:
+    "Unitainment is your all-in-one entertainment hub. Browse trending movies, top anime, TV shows, and Steam games. Track what you watch, rate titles, join discussions, and sync with IMDb, MyAnimeList & RAWG.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Unitainment — Movies, Anime, TV Shows & Games in One Place",
+    description:
+      "Your all-in-one entertainment hub. Track movies, anime, TV shows & games. Rate, review, and discuss with a community.",
+    url: "/",
+  },
+};
 
 export default async function HomePage() {
   const [movies, anime, games] = await Promise.all([

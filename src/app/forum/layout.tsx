@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Community Discussions & Forums",
-  description: "Join discussions on the latest movies, anime episodes, gaming releases, and entertainment theories with the Unitainment community.",
+  title: "Community Forum — Movies, Anime & Games Discussions",
+  description:
+    "Join Unitainment's community forum to discuss movies, anime, TV shows, and video games. Share reviews, recommendations, and opinions with fellow entertainment fans.",
   alternates: {
     canonical: "/forum",
   },
   openGraph: {
-    title: "Community Discussions & Forums | Unitainment",
-    description: "Join discussions on the latest movies, anime episodes, and games with the Unitainment community.",
+    title: "Community Forum | Unitainment",
+    description:
+      "Discuss movies, anime, TV shows, and games with the Unitainment community.",
     url: "/forum",
   },
 };

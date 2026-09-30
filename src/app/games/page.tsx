@@ -39,8 +39,18 @@ export default async function GamesPage() {
     "Sci-Fi",
   ];
 
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://unitainment.renitsuki.in" },
+      { "@type": "ListItem", "position": 2, "name": "Video Games", "item": "https://unitainment.renitsuki.in/games" }
+    ]
+  };
+
   return (
     <div className="space-y-8 py-4">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
       {/* Page Header */}
       <div className="rounded-3xl border border-white/10 bg-gradient-to-r from-emerald-950/40 via-teal-950/20 to-[#080c14] p-8 sm:p-10 shadow-xl space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">

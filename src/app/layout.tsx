@@ -91,9 +91,14 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/logo.png",
-    shortcut: "/favicon.ico",
-    apple: "/logo.png",
+    icon: [
+      { url: "/logo.png", type: "image/png" },
+      { url: "/logo.png", sizes: "48x48", type: "image/png" },
+      { url: "/logo.png", sizes: "72x72", type: "image/png" },
+      { url: "/logo.png", sizes: "192x192", type: "image/png" },
+    ],
+    shortcut: "/logo.png",
+    apple: [{ url: "/logo.png", sizes: "180x180", type: "image/png" }],
   },
 };
 
@@ -116,6 +121,7 @@ export default function RootLayout({
           "unitainment.renitsuki.in"
         ],
         "description": "Unified Entertainment Platform for Movies, TV Shows, Anime, and Video Games",
+        "inLanguage": "en-US",
         "potentialAction": {
           "@type": "SearchAction",
           "target": `${baseUrl}/?search={search_term_string}`,
@@ -127,10 +133,45 @@ export default function RootLayout({
         "@id": `${baseUrl}/#organization`,
         "name": "Unitainment",
         "url": baseUrl,
-        "logo": `${baseUrl}/logo.png`,
+        "logo": {
+          "@type": "ImageObject",
+          "url": `${baseUrl}/logo.png`,
+          "width": 512,
+          "height": 512,
+          "caption": "Unitainment logo"
+        },
+        "founder": {
+          "@type": "Person",
+          "name": "Ren Itsuki"
+        },
         "sameAs": [
           "https://github.com/RenItsuki/Unitainment"
         ]
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "name": "Movies & TV",
+        "url": `${baseUrl}/movies`
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "name": "Anime",
+        "url": `${baseUrl}/anime`
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "name": "Games",
+        "url": `${baseUrl}/games`
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "name": "Community Forum",
+        "url": `${baseUrl}/forum`
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "name": "Support",
+        "url": `${baseUrl}/donate`
       }
     ]
   };

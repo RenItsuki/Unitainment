@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Support Unitainment | Donate & Fuel Future Development",
-  description: "Support Unitainment's open, ad-free entertainment tracking platform. Contribute via UPI, Cards, or Net Banking to help keep server infrastructure alive.",
+  title: "Support Unitainment — Help Keep the Platform Free",
+  description:
+    "Unitainment is a free, community-driven entertainment tracker. If you enjoy using it, consider supporting the project to keep the servers running and new features coming.",
   alternates: {
     canonical: "/donate",
   },
   openGraph: {
-    title: "Support Unitainment | Donation & Backer Wall",
-    description: "Help fund server hosting, API integrations, and new features for Unitainment.",
+    title: "Support Unitainment | Donate",
+    description:
+      "Help keep Unitainment free. Your support funds servers, APIs, and new features for the community.",
     url: "/donate",
   },
 };
