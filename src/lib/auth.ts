@@ -233,7 +233,11 @@ export const authOptions: NextAuthOptions = {
           if (dbUser) {
             token.id = dbUser.id; // Map to SQLite cuid
             token.username = dbUser.username;
-            token.hasCustomUsername = dbUser.hasCustomUsername;
+            // Only update hasCustomUsername if the token doesn't already have it set to true.
+            // This prevents Vercel cold-start DB resets from wiping out the user's chosen username flag.
+            if (!token.hasCustomUsername) {
+              token.hasCustomUsername = dbUser.hasCustomUsername;
+            }
             if (dbUser.name) token.name = dbUser.name;
             if (dbUser.image) token.picture = dbUser.image;
           }

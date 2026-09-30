@@ -26,9 +26,26 @@ export function UsernameOnboardingModal() {
 
   // Trigger modal when authenticated user has hasCustomUsername === false
   useEffect(() => {
-    if (status === "authenticated" && session?.user) {
-      const user = session.user as any;
-      // If user has not set a custom username yet, open prompt
+    if (status === "loading") return;
+    if (status !== "authenticated" || !session?.user) return;
+
+    const user = session.user as any;
+
+    // If user already has a custom username in the session, never show the modal
+    if (user.hasCustomUsername === true || user.username) {
+      setIsOpen(false);
+      return;
+    }
+
+    // Guard: if user already dismissed this once this browser session, don't show again
+    const dismissed = sessionStorage.getItem("username_modal_dismissed");
+    if (dismissed) {
+      setIsOpen(false);
+      return;
+    }
+
+    // Small delay to let the JWT fully hydrate before deciding to show
+    const timer = setTimeout(() => {
       if (user.hasCustomUsername === false) {
         // Pre-fill suggestion from current username or name
         if (!username) {
@@ -39,10 +56,10 @@ export function UsernameOnboardingModal() {
           if (suggestion) setUsername(suggestion);
         }
         setIsOpen(true);
-      } else {
-        setIsOpen(false);
       }
-    }
+    }, 800);
+
+    return () => clearTimeout(timer);
   }, [session, status]);
 
   // Debounced username availability check
@@ -116,11 +133,13 @@ export function UsernameOnboardingModal() {
         return;
       }
 
-      // Update local session
+      // Update local session so hasCustomUsername flips to true immediately
       if (update) {
-        await update();
+        await update({ hasCustomUsername: true, username: clean });
       }
+      sessionStorage.setItem("username_modal_dismissed", "1");
       setIsOpen(false);
+      // Soft reload to refresh session without losing page state
       window.location.reload();
     } catch (err: any) {
       setErrorMsg(err.message || "An error occurred while saving username.");
@@ -129,6 +148,7 @@ export function UsernameOnboardingModal() {
   };
 
   const handleSkip = () => {
+    sessionStorage.setItem("username_modal_dismissed", "1");
     setIsOpen(false);
   };
 
