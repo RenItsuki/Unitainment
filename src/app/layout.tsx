@@ -92,13 +92,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/logo.png", type: "image/png" },
-      { url: "/logo.png", sizes: "48x48", type: "image/png" },
-      { url: "/logo.png", sizes: "72x72", type: "image/png" },
-      { url: "/logo.png", sizes: "192x192", type: "image/png" },
+      { url: "/favicon-48.png",  sizes: "48x48",   type: "image/png" },
+      { url: "/favicon-96.png",  sizes: "96x96",   type: "image/png" },
+      { url: "/favicon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/favicon-512.png", sizes: "512x512", type: "image/png" },
     ],
-    shortcut: "/logo.png",
-    apple: [{ url: "/logo.png", sizes: "180x180", type: "image/png" }],
+    shortcut: "/favicon.ico",
+    apple: [{ url: "/favicon-192.png", sizes: "180x180", type: "image/png" }],
   },
 };
 
@@ -135,7 +135,7 @@ export default function RootLayout({
         "url": baseUrl,
         "logo": {
           "@type": "ImageObject",
-          "url": `${baseUrl}/logo.png`,
+          "url": `${baseUrl}/favicon-512.png`,
           "width": 512,
           "height": 512,
           "caption": "Unitainment logo"
@@ -179,6 +179,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
+        {/* Explicit favicon declarations — Google requires square PNGs, minimum 48x48 */}
+        <link rel="icon" type="image/png" sizes="48x48"  href="/favicon-48.png" />
+        <link rel="icon" type="image/png" sizes="96x96"  href="/favicon-96.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/favicon-192.png" />
+        <link rel="shortcut icon" href="/favicon.ico" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
