@@ -93,27 +93,27 @@ export function StatusSelector({
           type="button"
           onClick={() => setDropdownOpen(!dropdownOpen)}
           disabled={loading}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
+          className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold border transition-all ${
             activeOption
               ? `${activeOption.color} shadow-lg shadow-black/30`
               : "bg-slate-900/90 text-slate-300 border-white/10 hover:border-white/25 hover:text-white"
           }`}
         >
           {loading ? (
-            <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
+            <Loader2 className="w-4 h-4 animate-spin text-cyan-400 flex-shrink-0" />
           ) : activeOption ? (
-            <activeOption.icon className="w-4 h-4" />
+            <activeOption.icon className="w-4 h-4 flex-shrink-0" />
           ) : (
-            <Bookmark className="w-4 h-4 text-cyan-400" />
+            <Bookmark className="w-4 h-4 text-cyan-400 flex-shrink-0" />
           )}
 
-          <span>{activeOption ? activeOption.label : "Add to Library"}</span>
-          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
+          <span className="flex-1 text-left truncate">{activeOption ? activeOption.label : "Add to Library"}</span>
+          <ChevronDown className={`w-3.5 h-3.5 flex-shrink-0 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
         </button>
 
         {dropdownOpen && (
           <div 
-            className="absolute left-0 mt-2 w-56 rounded-xl glass-panel border border-white/10 shadow-2xl z-50 py-1.5 animate-in fade-in zoom-in-95"
+            className="absolute left-0 bottom-full mb-1 w-56 rounded-xl glass-panel border border-white/10 shadow-2xl z-[999] py-1.5 animate-in fade-in zoom-in-95"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-white/5">

@@ -45,9 +45,9 @@ export function MediaCard({ item }: MediaCardProps) {
   const detailUrl = `/media/${item.type.toLowerCase()}/${item.externalId}`;
 
   return (
-    <div className="group relative rounded-2xl glass-card overflow-hidden flex flex-col h-full border border-white/5 hover:border-white/20 transition-all duration-300">
+    <div className="group relative rounded-2xl glass-card overflow-visible flex flex-col h-full border border-white/5 hover:border-white/20 transition-all duration-300">
       {/* Poster Media Container */}
-      <Link href={detailUrl} className="relative block aspect-[2/3] w-full overflow-hidden bg-slate-900">
+      <Link href={detailUrl} className="relative block aspect-[2/3] w-full overflow-hidden rounded-t-2xl bg-slate-900">
         <img
           src={imgSrc}
           alt={item.title}
@@ -74,18 +74,10 @@ export function MediaCard({ item }: MediaCardProps) {
             </span>
           )}
         </div>
-
-        {/* Quick status selector on hover overlay */}
-        <div 
-          className="absolute bottom-2.5 left-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <StatusSelector mediaItem={item} />
-        </div>
       </Link>
 
       {/* Card Details */}
-      <div className="p-3.5 flex flex-col flex-1 justify-between bg-[#0b101c]/90">
+      <div className="p-3.5 flex flex-col flex-1 justify-between bg-[#0b101c]/90 rounded-b-2xl">
         <div>
           <Link href={detailUrl} className="block group-hover:text-cyan-400 transition-colors">
             <h3 className="font-bold text-sm text-white line-clamp-1">
@@ -104,22 +96,22 @@ export function MediaCard({ item }: MediaCardProps) {
           </div>
         </div>
 
-        <div className="flex items-center justify-between mt-2 pt-1 border-t border-white/5">
+        {/* Studio / Playtime row */}
+        <div className="flex items-center justify-between mt-1.5 text-[10px] text-slate-500">
           {item.studioOrDeveloper && (
-            <p className="text-[10px] text-slate-500 truncate max-w-[65%]">
-              {item.studioOrDeveloper}
-            </p>
+            <p className="truncate max-w-[60%]">{item.studioOrDeveloper}</p>
           )}
           {item.avgPlaytime && (
-            <span className="text-[10px] font-semibold text-emerald-400/90 ml-auto truncate">
-              {item.avgPlaytime}
-            </span>
+            <span className="font-semibold text-emerald-400/90 ml-auto truncate">{item.avgPlaytime}</span>
           )}
           {item.runtime && !item.avgPlaytime && (
-            <span className="text-[10px] font-semibold text-slate-400 ml-auto truncate">
-              {item.runtime}
-            </span>
+            <span className="font-semibold text-slate-400 ml-auto truncate">{item.runtime}</span>
           )}
+        </div>
+
+        {/* Add to Library — always visible at the bottom, no clipping */}
+        <div className="mt-2.5 pt-2 border-t border-white/5" onClick={(e) => e.stopPropagation()}>
+          <StatusSelector mediaItem={item} />
         </div>
       </div>
     </div>

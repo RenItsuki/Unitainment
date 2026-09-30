@@ -13,6 +13,14 @@ const DEFAULT_SUPPORTERS = [
     message: "Loving the anime, movie & game tracking! Keep it up! 🍿",
     createdAt: new Date("2026-09-24T12:00:00Z").toISOString(),
   },
+  {
+    id: "donor_kishlay_50",
+    amount: 50,
+    currency: "INR",
+    donorName: "Kishlay",
+    message: "Great platform! Keep building! 🎮",
+    createdAt: new Date("2026-09-30T04:00:00Z").toISOString(),
+  },
 ];
 
 export async function GET() {
@@ -36,12 +44,17 @@ export async function GET() {
       take: 30,
     });
 
-    // Check if Aman is in the DB results
-    const hasAman = dbDonations.some(
-      (d) => d.donorName?.toLowerCase() === "aman" && d.amount === 150
+    // Always include baseline supporters; deduplicate by donorName+amount to avoid doubles
+    const dbKeys = new Set(
+      dbDonations.map((d) => `${d.donorName?.toLowerCase()}_${d.amount}`)
+    );
+    const missingBaseline = DEFAULT_SUPPORTERS.filter(
+      (s) => !dbKeys.has(`${s.donorName.toLowerCase()}_${s.amount}`)
     );
 
-    const merged = hasAman ? dbDonations : [...dbDonations, ...DEFAULT_SUPPORTERS];
+    const merged = [...dbDonations, ...missingBaseline].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
 
     return NextResponse.json(
       { donations: merged },
