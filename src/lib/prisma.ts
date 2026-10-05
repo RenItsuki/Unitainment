@@ -20,7 +20,7 @@ function createPrismaClient(): PrismaClient {
     });
     const adapter = new PrismaLibSQL(libsql);
     return new PrismaClient({
-      adapter,
+      adapter: adapter as any,
       log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
     });
   }

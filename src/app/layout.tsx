@@ -98,7 +98,7 @@ export const metadata: Metadata = {
       { url: "/favicon-512.png", sizes: "512x512", type: "image/png" },
     ],
     shortcut: "/favicon.ico",
-    apple: [{ url: "/favicon-192.png", sizes: "180x180", type: "image/png" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
 };
 
@@ -184,7 +184,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="96x96"  href="/favicon-96.png" />
         <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
         <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/favicon-192.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="shortcut icon" href="/favicon.ico" />
         <script
           type="application/ld+json"
